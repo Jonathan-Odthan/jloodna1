@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Compte — Jloodna</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .account-layout{display:grid;gap:24px;grid-template-columns:1fr}
+    @media(min-width:900px){.account-layout{grid-template-columns:260px 1fr}}
+    .account-nav{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:20px;height:fit-content;position:sticky;top:80px}
+    .account-nav-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;font-size:14px;font-weight:500;color:#4a5568;cursor:pointer;transition:all .15s;width:100%;border:none;background:none;text-align:left}
+    .account-nav-item:hover{background:#f0f4ff;color:#0a2342}
+    .account-nav-item.active{background:#0a2342;color:#fff}
+    .account-panel{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:28px}
+    .avatar-upload{position:relative;width:90px;height:90px;margin-bottom:16px}
+    .avatar-img{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #e2e8f0}
+    .avatar-change{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:#0a2342;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border:2px solid #fff}
+    .address-card{border:1px solid #e2e8f0;border-radius:12px;padding:16px;position:relative}
+    .address-card.default{border-color:#0a2342;background:#f0f4ff}
+    .address-default-badge{position:absolute;top:10px;right:10px;background:#0a2342;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+    .stat-card{background:linear-gradient(135deg,#0a2342,#1565c0);border-radius:14px;padding:20px;color:#fff;text-align:center}
+    .stat-num{font-size:32px;font-weight:900;line-height:1}
+    .stat-label{font-size:12px;opacity:.8;margin-top:4px}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Mon Compte</span>
+  </div>
+  <div class="account-layout">
+    <!-- Sidebar Nav -->
+    <aside class="account-nav">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:12px;border-bottom:1px solid #e2e8f0">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0a2342,#1565c0);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700" id="avatarInitial">?</div>
+        <div><div style="font-weight:700;font-size:14px;color:#0a2342" id="accountName">Chargement…</div><div style="font-size:12px;color:#9aa3b2" id="accountEmail"></div></div>
+      </div>
+      <button class="account-nav-item active" onclick="showPanel('dashboard',this)">📊 Tableau de bord</button>
+      <button class="account-nav-item" onclick="showPanel('profile',this)">👤 Mon Profil</button>
+      <button class="account-nav-item" onclick="showPanel('orders',this)">📦 Mes Commandes</button>
+      <button class="account-nav-item" onclick="showPanel('wishlist',this)">❤️ Mes Favoris</button>
+      <button class="account-nav-item" onclick="showPanel('addresses',this)">📍 Mes Adresses</button>
+      <button class="account-nav-item" onclick="showPanel('notifications',this)">🔔 Notifications</button>
+      <button class="account-nav-item" onclick="showPanel('security',this)">🔒 Sécurité</button>
+      <div style="border-top:1px solid #e2e8f0;margin-top:12px;padding-top:12px">
+        <button class="account-nav-item" style="color:#c62828" onclick="Auth.logout()">🚪 Déconnexion</button>
+      </div>
+    </aside>
+
+    <!-- Panels -->
+    <div>
+      <!-- Dashboard -->
+      <div id="panel-dashboard" class="account-panel">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:20px">👋 Bienvenue, <span id="dashName">—</span></h2>
+        <div style="display:grid;gap:16px;grid-template-columns:repeat(2,1fr);margin-bottom:28px">
+          <div class="stat-card"><div class="stat-num" id="statOrders">0</div><div class="stat-label">Commandes</div></div>
+          <div class="stat-card" style="background:linear-gradient(135deg,#c62828,#e53935)"><div class="stat-num" id="statWishlist">0</div><div class="stat-label">Favoris</div></div>
+          <div class="stat-card" style="background:linear-gradient(135deg,#1b5e20,#388e3c)"><div class="stat-num" id="statDelivered">0</div><div class="stat-label">Livrées</div></div>
+          <div class="stat-card" style="background:linear-gradient(135deg,#e65100,#ff6f00)"><div class="stat-num" id="statSpent">G 0</div><div class="stat-label">Total dépensé</div></div>
+        </div>
+        <h3 style="font-weight:700;color:#0a2342;margin-bottom:12px">Dernières commandes</h3>
+        <div id="recentOrders"></div>
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+          <a href="shop.html" class="btn btn-primary">🛍️ Continuer les achats</a>
+          <a href="track.html" class="btn btn-outline">📍 Suivre une commande</a>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div id="panel-profile" class="account-panel" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:20px">👤 Mon Profil</h2>
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:24px">
+          <div class="avatar-upload">
+            <div class="avatar-img" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a2342,#1565c0);color:#fff;font-size:32px;font-weight:700" id="profileAvatar">?</div>
+            <div class="avatar-change" onclick="document.getElementById('avatarInput').click()">✏️</div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(this)">
+          </div>
+          <div><div style="font-weight:700;font-size:16px;color:#0a2342" id="profileName2">—</div><div style="font-size:13px;color:#9aa3b2">Client depuis <span id="memberSince">—</span></div></div>
+        </div>
+        <form id="profileForm">
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Prénom</label><input type="text" id="pFirst" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Nom</label><input type="text" id="pLast" class="form-control"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email</label><input type="email" id="pEmail" class="form-control" readonly style="background:#f5f5f0;cursor:not-allowed"></div>
+          <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" id="pPhone" class="form-control" placeholder="+509 XXXX XXXX"></div>
+          <div class="form-group"><label class="form-label">Pays</label>
+            <select id="pCountry" class="form-control">
+              <option value="HT">🇭🇹 Haiti</option>
+              <option value="DO">🇩🇴 République Dominicaine</option>
+              <option value="US">🇺🇸 États-Unis</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Devise préférée</label>
+            <select id="pCurrency" class="form-control">
+              <option value="HTG">HTG — Gourde Haïtienne (G)</option>
+              <option value="DOP">DOP — Peso Dominicain (RD$)</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="saveProfile()">💾 Sauvegarder les modifications</button>
+        </form>
+      </div>
+
+      <!-- Orders -->
+      <div id="panel-orders" class="account-panel" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:20px">📦 Mes Commandes</h2>
+        <div id="ordersList"></div>
+      </div>
+
+      <!-- Wishlist -->
+      <div id="panel-wishlist" class="account-panel" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:20px">❤️ Mes Favoris</h2>
+        <div class="product-grid" id="wishlistGrid"></div>
+      </div>
+
+      <!-- Addresses -->
+      <div id="panel-addresses" class="account-panel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342">📍 Mes Adresses</h2>
+          <button class="btn btn-primary btn-sm" onclick="showAddressForm()">+ Ajouter</button>
+        </div>
+        <div id="addressList" style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"></div>
+        <div id="addressForm" style="display:none;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:16px">
+          <h3 style="font-weight:700;color:#0a2342;margin-bottom:16px">Nouvelle adresse</h3>
+          <div class="form-group"><label class="form-label">Nom complet</label><input type="text" id="aName" class="form-control" placeholder="Jean Robert"></div>
+          <div class="form-group"><label class="form-label">Adresse</label><input type="text" id="aAddr" class="form-control" placeholder="Rue, Numéro, Quartier"></div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Ville</label><input type="text" id="aCity" class="form-control"></div>
+            <div class="form-group"><label class="form-label">Pays</label><select id="aCountry" class="form-control"><option value="HT">🇭🇹 Haiti</option><option value="DO">🇩🇴 RD</option></select></div>
+          </div>
+          <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" id="aPhone" class="form-control"></div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="saveAddress()">Sauvegarder</button>
+            <button class="btn btn-outline" onclick="document.getElementById('addressForm').style.display='none'">Annuler</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div id="panel-notifications" class="account-panel" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:20px">🔔 Notifications</h2>
+        <div id="notifsFull"></div>
+      </div>
+
+      <!-- Security -->
+      <div id="panel-security" class="account-panel" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:20px">🔒 Sécurité</h2>
+        <div style="margin-bottom:24px;background:#f0f9f0;border-radius:10px;padding:16px;display:flex;gap:10px">
+          <span style="font-size:24px">✅</span>
+          <div><div style="font-weight:700;color:#2e7d32">Compte sécurisé</div><div style="font-size:13px;color:#4a5568">Votre compte est protégé</div></div>
+        </div>
+        <h3 style="font-weight:700;color:#0a2342;margin-bottom:16px">Changer le mot de passe</h3>
+        <form id="passForm">
+          <div class="form-group"><label class="form-label">Mot de passe actuel</label><input type="password" id="curPass" class="form-control" placeholder="••••••••"></div>
+          <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input type="password" id="newPass" class="form-control" placeholder="Minimum 8 caractères"></div>
+          <div class="form-group"><label class="form-label">Confirmer</label><input type="password" id="confPass" class="form-control" placeholder="••••••••"></div>
+          <button type="button" class="btn btn-primary" onclick="changePassword()">🔒 Mettre à jour</button>
+        </form>
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0">
+          <h3 style="font-weight:700;color:#c62828;margin-bottom:12px">Zone dangereuse</h3>
+          <button class="btn btn-outline" style="border-color:#c62828;color:#c62828" onclick="confirmDeleteAccount()">🗑️ Supprimer mon compte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  function requireAuth() {
+    const user = JSON.parse(sessionStorage.getItem('jl_user') || 'null');
+    if (!user) { window.location.href = '../auth/login.html?redirect=../pages/account.html'; return null; }
+    return user;
+  }
+
+  function showPanel(name, btn) {
+    document.querySelectorAll('[id^=panel-]').forEach(p => p.style.display = 'none');
+    document.getElementById('panel-' + name).style.display = 'block';
+    document.querySelectorAll('.account-nav-item').forEach(b => b.classList.remove('active'));
+    btn?.classList.add('active');
+    if (name === 'orders') renderOrders();
+    if (name === 'wishlist') renderWishlist();
+    if (name === 'notifications') renderNotifsPanel();
+    if (name === 'addresses') renderAddresses();
+  }
+
+  function renderOrders() {
+    const orders = JSON.parse(localStorage.getItem('jl_orders') || '[]');
+    const el = document.getElementById('ordersList');
+    if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-title">Aucune commande</div><a href="shop.html" class="btn btn-primary">Commencer les achats</a></div>'; return; }
+    const statusColors = { pending:'#f57f17', processing:'#1565c0', shipped:'#6a1b9a', delivered:'#2e7d32', cancelled:'#c62828' };
+    const statusLabels = { pending:'⏳ En attente', processing:'⚙️ En traitement', shipped:'🚚 Expédiée', delivered:'✅ Livrée', cancelled:'❌ Annulée' };
+    el.innerHTML = orders.map(o => `
+      <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div>
+            <div style="font-weight:700;color:#0a2342;font-size:15px">${o.id}</div>
+            <div style="font-size:12px;color:#9aa3b2">${new Date(o.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span style="background:${statusColors[o.status]||'#9aa3b2'}22;color:${statusColors[o.status]||'#9aa3b2'};font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px">${statusLabels[o.status]||o.status}</span>
+            <span style="font-size:16px;font-weight:900;color:#0a2342">${Currency.format(o.total)}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${(o.items||[]).slice(0,3).map(i => `<img src="${i.image||''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;background:#f5f5f0" onerror="this.src=''"`).join('')}
+          ${(o.items||[]).length > 3 ? `<div style="width:44px;height:44px;border-radius:8px;background:#f5f5f0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#9aa3b2">+${o.items.length-3}</div>` : ''}
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <a href="track.html?id=${o.id}" class="btn btn-outline btn-sm">📍 Suivre</a>
+          <a href="orders.html?id=${o.id}" class="btn btn-sm" style="background:#f5f5f0;color:#0a2342">Détails</a>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderWishlist() {
+    const el = document.getElementById('wishlistGrid');
+    if (!State.wishlist.length) { el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">❤️</div><div class="empty-state-title">Aucun favori</div><a href="shop.html" class="btn btn-primary">Explorer la boutique</a></div>'; return; }
+    el.innerHTML = State.wishlist.map(p => `
+      <div class="product-card">
+        <div class="product-card-img"><a href="product.html?id=${p.id}"><img src="${p.image||''}" alt="${p.title}" loading="lazy" onerror="this.src=''"></a></div>
+        <div class="product-card-body">
+          <a href="product.html?id=${p.id}" class="product-card-title">${p.title}</a>
+          <div class="product-card-price"><span class="price-current" data-price="${p.price}">${Currency.format(p.price)}</span></div>
+        </div>
+        <div class="product-card-footer" style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" style="flex:1" onclick='Cart.add(${JSON.stringify({id:p.id,title:p.title,price:p.price,image:p.image,variant:""})})'>🛒 Ajouter</button>
+          <button class="btn btn-outline btn-sm btn-icon" onclick='Wishlist.toggle(${JSON.stringify(p)});renderWishlist()' title="Retirer">🗑️</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderNotifsPanel() {
+    const el = document.getElementById('notifsFull');
+    const notifs = Notifs.list;
+    if (!notifs.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-title">Aucune notification</div></div>'; return; }
+    el.innerHTML = notifs.map(n => `
+      <div style="display:flex;gap:12px;padding:14px;border-bottom:1px solid #e2e8f0;${n.read?'':'background:#eff6ff'};border-radius:8px;margin-bottom:4px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${n.read?'#e2e8f0':'#1565c0'};flex-shrink:0;margin-top:5px"></div>
+        <div style="flex:1"><div style="font-weight:600;font-size:14px;color:#0a2342">${n.title}</div><div style="font-size:13px;color:#4a5568">${n.message}</div><div style="font-size:11px;color:#9aa3b2;margin-top:4px">${timeAgo(n.time)}</div></div>
+      </div>`).join('');
+  }
+
+  function renderAddresses() {
+    const addresses = JSON.parse(localStorage.getItem('jl_addresses') || '[]');
+    const el = document.getElementById('addressList');
+    if (!addresses.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📍</div><div class="empty-state-title">Aucune adresse</div></div>'; return; }
+    el.innerHTML = addresses.map((a, i) => `
+      <div class="address-card ${i===0?'default':''}">
+        ${i===0?'<span class="address-default-badge">Par défaut</span>':''}
+        <div style="font-weight:700;color:#0a2342;margin-bottom:6px">${a.name}</div>
+        <div style="font-size:13px;color:#4a5568;line-height:1.6">${a.address}<br>${a.city}, ${a.country}<br>${a.phone}</div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="editAddress(${i})">✏️</button>
+          <button class="btn btn-sm" style="background:#fff3f3;color:#c62828;border:1px solid #fca5a5" onclick="deleteAddress(${i})">🗑️</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function showAddressForm() { document.getElementById('addressForm').style.display = 'block'; }
+
+  function saveAddress() {
+    const a = { name:document.getElementById('aName').value, address:document.getElementById('aAddr').value, city:document.getElementById('aCity').value, country:document.getElementById('aCountry').value, phone:document.getElementById('aPhone').value };
+    if (!a.name || !a.address) { Toast.show('warning','Champs requis','Remplissez les champs obligatoires.'); return; }
+    const addresses = JSON.parse(localStorage.getItem('jl_addresses') || '[]');
+    addresses.push(a); localStorage.setItem('jl_addresses', JSON.stringify(addresses));
+    document.getElementById('addressForm').style.display = 'none';
+    renderAddresses();
+    Toast.show('success','✅ Adresse ajoutée','Votre adresse a été sauvegardée.');
+  }
+
+  function deleteAddress(i) {
+    if (!confirm('Supprimer cette adresse?')) return;
+    const addresses = JSON.parse(localStorage.getItem('jl_addresses') || '[]');
+    addresses.splice(i, 1); localStorage.setItem('jl_addresses', JSON.stringify(addresses));
+    renderAddresses();
+    Toast.show('info','Adresse supprimée');
+  }
+
+  function saveProfile() {
+    const user = JSON.parse(sessionStorage.getItem('jl_user') || '{}');
+    user.name = `${document.getElementById('pFirst').value} ${document.getElementById('pLast').value}`.trim();
+    user.phone = document.getElementById('pPhone').value;
+    user.country = document.getElementById('pCountry').value;
+    const cur = document.getElementById('pCurrency').value;
+    State.currency = cur; State.saveCurrency();
+    sessionStorage.setItem('jl_user', JSON.stringify(user));
+    Toast.show('success','✅ Profil mis à jour','Vos informations ont été sauvegardées.');
+  }
+
+  function changePassword() {
+    const cur = document.getElementById('curPass').value;
+    const nw = document.getElementById('newPass').value;
+    const conf = document.getElementById('confPass').value;
+    if (!cur) { Toast.show('error','Erreur','Entrez le mot de passe actuel.'); return; }
+    if (nw.length < 8) { Toast.show('error','Erreur','Minimum 8 caractères.'); return; }
+    if (nw !== conf) { Toast.show('error','Erreur','Les mots de passe ne correspondent pas.'); return; }
+    Toast.show('success','✅ Mot de passe mis à jour','Votre mot de passe a été changé.');
+    ['curPass','newPass','confPass'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function confirmDeleteAccount() {
+    if (confirm('⚠️ Cette action est irréversible. Voulez-vous vraiment supprimer votre compte?')) {
+      sessionStorage.removeItem('jl_user');
+      Toast.show('info','Compte supprimé','Au revoir!');
+      setTimeout(() => window.location.href = '../index.html', 1200);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = requireAuth(); if (!user) return;
+    document.getElementById('accountName').textContent = user.name || 'Mon compte';
+    document.getElementById('accountEmail').textContent = user.email || '';
+    document.getElementById('avatarInitial').textContent = (user.name||'U')[0].toUpperCase();
+    document.getElementById('dashName').textContent = user.name?.split(' ')[0] || 'Client';
+    document.getElementById('profileAvatar').textContent = (user.name||'U')[0].toUpperCase();
+    document.getElementById('profileName2').textContent = user.name || '';
+    document.getElementById('memberSince').textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR',{month:'long',year:'numeric'}) : '2025';
+    if (document.getElementById('pFirst')) document.getElementById('pFirst').value = user.name?.split(' ')[0] || '';
+    if (document.getElementById('pLast')) document.getElementById('pLast').value = user.name?.split(' ')[1] || '';
+    if (document.getElementById('pEmail')) document.getElementById('pEmail').value = user.email || '';
+    // Stats
+    const orders = JSON.parse(localStorage.getItem('jl_orders') || '[]');
+    document.getElementById('statOrders').textContent = orders.length;
+    document.getElementById('statWishlist').textContent = State.wishlist.length;
+    document.getElementById('statDelivered').textContent = orders.filter(o => o.status === 'delivered').length;
+    const total = orders.reduce((s, o) => s + (o.total || 0), 0);
+    document.getElementById('statSpent').textContent = 'G ' + Math.round(total / 1000) + 'k';
+    // Recent orders in dashboard
+    const recentEl = document.getElementById('recentOrders');
+    if (!orders.length) { recentEl.innerHTML = '<p style="color:#9aa3b2;font-size:14px">Aucune commande pour le moment.</p>'; }
+    else {
+      recentEl.innerHTML = orders.slice(0, 3).map(o => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0e8;font-size:13px">
+          <span style="font-weight:600;color:#0a2342">${o.id}</span>
+          <span style="color:#9aa3b2">${new Date(o.date).toLocaleDateString('fr-FR')}</span>
+          <span style="font-weight:700;color:#ff6f00">${Currency.format(o.total)}</span>
+          <a href="track.html?id=${o.id}" style="color:#1565c0;font-weight:600">Suivre →</a>
+        </div>`).join('');
+    }
+  });
+</script>
+</body>
+</html>

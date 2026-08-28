@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi de Commande — Jloodna</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .track-input-wrap{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:32px;max-width:600px;margin:0 auto 32px}
+    .track-result{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:28px}
+    .timeline{position:relative;padding-left:32px}
+    .timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:#e2e8f0}
+    .timeline-item{position:relative;padding-bottom:28px}
+    .timeline-item:last-child{padding-bottom:0}
+    .timeline-dot{position:absolute;left:-32px;top:2px;width:24px;height:24px;border-radius:50%;border:3px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .3s}
+    .timeline-item.done .timeline-dot{border-color:#2e7d32;background:#2e7d32;color:#fff}
+    .timeline-item.active .timeline-dot{border-color:#1565c0;background:#1565c0;color:#fff;box-shadow:0 0 0 4px rgba(21,101,192,.2)}
+    .timeline-title{font-weight:700;font-size:14px;color:#0a2342;margin-bottom:3px}
+    .timeline-item.active .timeline-title{color:#1565c0}
+    .timeline-item.pending .timeline-title,.timeline-item.pending .timeline-date{color:#9aa3b2}
+    .timeline-date{font-size:12px;color:#9aa3b2}
+    .timeline-desc{font-size:13px;color:#4a5568;margin-top:4px}
+    .status-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:30px;font-weight:700;font-size:14px}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a><span class="breadcrumb-sep">›</span>
+    <a href="account.html">Mon compte</a><span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Suivi de commande</span>
+  </div>
+  <h1 class="section-title" style="margin-bottom:8px">📍 Suivi de <span>Commande</span></h1>
+  <p style="color:#9aa3b2;margin-bottom:32px">Entrez votre numéro de commande ou email pour suivre votre livraison en temps réel.</p>
+
+  <div class="track-input-wrap">
+    <div class="form-group">
+      <label class="form-label">Numéro de commande</label>
+      <input type="text" id="trackId" class="form-control" placeholder="Ex: JL-1748000000000" style="font-family:var(--font-mono)">
+    </div>
+    <div style="text-align:center;color:#9aa3b2;font-size:13px;margin:8px 0">— ou —</div>
+    <div class="form-group">
+      <label class="form-label">Email de commande</label>
+      <input type="email" id="trackEmail" class="form-control" placeholder="vous@exemple.com">
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" onclick="trackOrder()">🔍 Suivre ma commande</button>
+  </div>
+
+  <div id="trackResult" style="display:none" class="track-result">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #e2e8f0">
+      <div>
+        <div style="font-size:12px;color:#9aa3b2;margin-bottom:4px">Commande</div>
+        <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:#0a2342" id="trackOrderId"></div>
+        <div style="font-size:13px;color:#9aa3b2;margin-top:2px" id="trackOrderDate"></div>
+      </div>
+      <div id="trackStatusBadge"></div>
+    </div>
+
+    <!-- Tracking Timeline -->
+    <div class="timeline" id="trackTimeline"></div>
+
+    <!-- Map placeholder -->
+    <div style="background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-radius:12px;padding:24px;text-align:center;margin:24px 0">
+      <div style="font-size:48px;margin-bottom:8px">🗺️</div>
+      <div style="font-weight:700;color:#0a2342;margin-bottom:4px">Carte de suivi en direct</div>
+      <div style="font-size:13px;color:#4a5568">La carte interactive sera disponible quand votre colis sera pris en charge par le livreur.</div>
+    </div>
+
+    <!-- Order Items -->
+    <h3 style="font-weight:700;color:#0a2342;margin-bottom:12px">Contenu de la commande</h3>
+    <div id="trackItems"></div>
+
+    <!-- Delivery info -->
+    <div style="background:#f5f5f0;border-radius:10px;padding:16px;margin-top:16px" id="trackDeliveryInfo"></div>
+
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-outline" onclick="document.getElementById('trackResult').style.display='none'">← Nouvelle recherche</button>
+      <a href="contact.html" class="btn btn-primary">💬 Contacter le support</a>
+    </div>
+  </div>
+
+  <div id="trackNotFound" style="display:none" class="empty-state">
+    <div class="empty-state-icon">🔍</div>
+    <div class="empty-state-title">Commande introuvable</div>
+    <div class="empty-state-msg">Vérifiez le numéro de commande ou l'email. Pour toute aide, contactez notre support.</div>
+    <a href="contact.html" class="btn btn-primary">Contacter le support</a>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  const STATUS_TIMELINE = {
+    pending: [
+      { icon:'📥', title:'Commande reçue', desc:'Votre commande a été enregistrée avec succès.', status:'done' },
+      { icon:'💳', title:'Paiement en vérification', desc:'Vérification du paiement en cours.', status:'active' },
+      { icon:'⚙️', title:'Préparation', desc:'Votre colis sera préparé sous 24h.', status:'pending' },
+      { icon:'🚚', title:'Expédition', desc:'', status:'pending' },
+      { icon:'✅', title:'Livraison', desc:'', status:'pending' },
+    ],
+    processing: [
+      { icon:'📥', title:'Commande reçue', desc:'Commande enregistrée.', status:'done' },
+      { icon:'💳', title:'Paiement confirmé', desc:'Paiement vérifié et accepté.', status:'done' },
+      { icon:'⚙️', title:'En préparation', desc:'Votre colis est en cours de préparation.', status:'active' },
+      { icon:'🚚', title:'Expédition', desc:'', status:'pending' },
+      { icon:'✅', title:'Livraison', desc:'', status:'pending' },
+    ],
+    shipped: [
+      { icon:'📥', title:'Commande reçue', desc:'Commande enregistrée.', status:'done' },
+      { icon:'💳', title:'Paiement confirmé', desc:'Paiement vérifié et accepté.', status:'done' },
+      { icon:'⚙️', title:'Colis préparé', desc:'Votre colis a été emballé.', status:'done' },
+      { icon:'🚚', title:'En transit', desc:'Votre colis est en route vers vous!', status:'active' },
+      { icon:'✅', title:'Livraison', desc:'', status:'pending' },
+    ],
+    delivered: [
+      { icon:'📥', title:'Commande reçue', desc:'Commande enregistrée.', status:'done' },
+      { icon:'💳', title:'Paiement confirmé', desc:'Paiement vérifié et accepté.', status:'done' },
+      { icon:'⚙️', title:'Colis préparé', desc:'Votre colis a été emballé.', status:'done' },
+      { icon:'🚚', title:'Expédié', desc:'Colis pris en charge par le livreur.', status:'done' },
+      { icon:'🎉', title:'Livré!', desc:'Votre commande a été livrée avec succès.', status:'done' },
+    ],
+  };
+
+  const STATUS_BADGE = {
+    pending: { label:'⏳ En attente', color:'#f57f17', bg:'#fff8e1' },
+    processing: { label:'⚙️ En traitement', color:'#1565c0', bg:'#e3f2fd' },
+    shipped: { label:'🚚 En transit', color:'#6a1b9a', bg:'#f3e5f5' },
+    delivered: { label:'✅ Livrée', color:'#2e7d32', bg:'#e8f5e9' },
+    cancelled: { label:'❌ Annulée', color:'#c62828', bg:'#ffebee' },
+  };
+
+  async function trackOrder() {
+    const id = document.getElementById('trackId').value.trim();
+    const email = document.getElementById('trackEmail').value.trim();
+    if (!id && !email) { Toast.show('warning','Requis','Entrez un numéro de commande ou votre email.'); return; }
+    let order;
+    try {
+      const params = new URLSearchParams();
+      if (id) params.set('id', id);
+      if (email) params.set('email', email);
+      const response = await fetch(`/api/orders/track?${params}`);
+      if (!response.ok) throw new Error('Commande introuvable.');
+      const tracking = await response.json();
+      const localOrders = JSON.parse(localStorage.getItem('jl_orders') || '[]');
+      const localOrder = localOrders.find(o => o.id === tracking.id) || {};
+      order = { ...localOrder, ...tracking, date: tracking.createdAt, items: localOrder.items || [] };
+    } catch (err) {
+      document.getElementById('trackResult').style.display = 'none';
+      document.getElementById('trackNotFound').style.display = 'flex';
+      return;
+    }
+
+    document.getElementById('trackNotFound').style.display = 'none';
+    document.getElementById('trackResult').style.display = 'block';
+    document.getElementById('trackOrderId').textContent = order.id;
+    document.getElementById('trackOrderDate').textContent = new Date(order.date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+    const badge = STATUS_BADGE[order.status] || STATUS_BADGE.pending;
+    document.getElementById('trackStatusBadge').innerHTML = `<span class="status-badge" style="background:${badge.bg};color:${badge.color}">${badge.label}</span>`;
+
+    const timeline = STATUS_TIMELINE[order.status] || STATUS_TIMELINE.pending;
+    const now = new Date();
+    document.getElementById('trackTimeline').innerHTML = timeline.map((t, i) => `
+      <div class="timeline-item ${t.status}">
+        <div class="timeline-dot">${t.status === 'pending' ? '' : (t.status === 'active' ? '→' : '✓')}</div>
+        <div class="timeline-title">${t.icon} ${t.title}</div>
+        ${t.status !== 'pending' ? `<div class="timeline-date">${new Date(now - (timeline.length - i - 1) * 18 * 3600000).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</div>` : ''}
+        ${t.desc ? `<div class="timeline-desc">${t.desc}</div>` : ''}
+      </div>`).join('');
+
+    document.getElementById('trackItems').innerHTML = (order.items || []).map(item => `
+      <div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0e8">
+        <img src="${item.image||''}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;background:#f5f5f0" onerror="this.src=''">
+        <div style="flex:1;font-size:14px;font-weight:600;color:#0a2342">${item.title}</div>
+        <div style="font-size:14px;font-weight:700;color:#ff6f00">${Currency.format(item.price * item.qty)}</div>
+      </div>`).join('');
+
+    const addr = order.address || {};
+    document.getElementById('trackDeliveryInfo').innerHTML = `
+      <div style="font-weight:700;color:#0a2342;margin-bottom:8px">📦 Informations de livraison</div>
+      <div style="font-size:13px;color:#4a5568;line-height:1.8">
+        <strong>Destinataire:</strong> ${addr.name || '—'}<br>
+        <strong>Adresse:</strong> ${addr.city || '—'}, ${addr.country || '—'}<br>
+        <strong>Téléphone:</strong> ${addr.phone || '—'}<br>
+        <strong>Méthode:</strong> ${order.shipping?.name || 'Standard'} — ${order.shipping?.desc || ''}<br>
+        <strong>Total:</strong> ${Currency.format(order.total)}
+      </div>`;
+
+    document.getElementById('trackResult').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const id = getParam('id');
+    if (id) { document.getElementById('trackId').value = id; trackOrder(); }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Mes Favoris — Jloodna</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+</head>
+<body>
+<div id="appHeader"></div>
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a><span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Mes Favoris</span>
+  </div>
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">❤️ Mes <span>Favoris</span></h1>
+      <p class="section-subtitle" id="wishCount">0 produit(s) sauvegardé(s)</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" onclick="shareWishlist()">🔗 Partager</button>
+      <button class="btn btn-primary" onclick="addAllToCart()">🛒 Tout ajouter au panier</button>
+    </div>
+  </div>
+  <div id="wishlistGrid" class="product-grid"></div>
+  <div id="emptyWishlist" style="display:none">
+    <div class="empty-state">
+      <div class="empty-state-icon">❤️</div>
+      <div class="empty-state-title">Aucun favori</div>
+      <div class="empty-state-msg">Parcourez notre boutique et ajoutez des produits à votre liste de favoris.</div>
+      <a href="shop.html" class="btn btn-primary btn-lg">🛍️ Explorer la boutique</a>
+    </div>
+  </div>
+  <!-- Recommendations -->
+  <div id="recSection" style="margin-top:48px;display:none">
+    <div class="section-header">
+      <div><h2 class="section-title">💡 Vous pourriez aussi <span>aimer</span></h2></div>
+      <a href="shop.html" class="section-link">Voir tout →</a>
+    </div>
+    <div class="product-grid" id="recGrid"></div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  function renderWishlist() {
+    const el = document.getElementById('wishlistGrid');
+    const empty = document.getElementById('emptyWishlist');
+    const count = document.getElementById('wishCount');
+    const recSec = document.getElementById('recSection');
+    count.textContent = `${State.wishlist.length} produit(s) sauvegardé(s)`;
+    if (!State.wishlist.length) {
+      el.style.display = 'none'; empty.style.display = 'flex'; recSec.style.display = 'block';
+      Products.renderGrid(Products.featured().slice(0,6), 'recGrid');
+      return;
+    }
+    el.style.display = 'grid'; empty.style.display = 'none';
+    el.innerHTML = State.wishlist.map(p => `
+      <div class="product-card">
+        <div class="product-card-img">
+          <a href="product.html?id=${p.id}"><img src="${p.image||''}" alt="${p.title}" loading="lazy" onerror="this.src=''"></a>
+          <div class="product-card-actions" style="opacity:1;transform:none">
+            <button class="product-card-action-btn active" onclick='removeFromWishlist("${p.id}")' title="Retirer des favoris">❤️</button>
+          </div>
+        </div>
+        <div class="product-card-body">
+          <a href="product.html?id=${p.id}" class="product-card-title">${p.title}</a>
+          <div class="product-card-price">
+            <span class="price-current" data-price="${p.price}">${Currency.format(p.price)}</span>
+            <div style="font-size:11px;color:#9aa3b2">${Currency.format(p.price,'DOP')}</div>
+          </div>
+        </div>
+        <div class="product-card-footer" style="display:flex;gap:6px">
+          <button class="btn btn-primary btn-sm" style="flex:1" onclick='Cart.add({id:"${p.id}",title:"${p.title.replace(/"/g,"'")}",price:${p.price},image:"${p.image||''}",variant:""})'>🛒 Panier</button>
+          <button class="btn btn-sm btn-outline" onclick='removeFromWishlist("${p.id}")' title="Supprimer">🗑️</button>
+        </div>
+      </div>`).join('');
+    recSec.style.display = 'block';
+    const catSlug = State.wishlist[0]?.category;
+    const recs = Products.byCategory(catSlug).filter(p => !State.wishlist.find(w => w.id === p.id)).slice(0,4);
+    Products.renderGrid(recs.length ? recs : Products.featured().slice(0,4), 'recGrid');
+  }
+
+  function removeFromWishlist(id) {
+    State.wishlist = State.wishlist.filter(p => p.id !== id);
+    State.saveWishlist();
+    Wishlist.updateUI();
+    renderWishlist();
+    Toast.show('info','Retiré des favoris');
+  }
+
+  function addAllToCart() {
+    if (!State.wishlist.length) return;
+    State.wishlist.forEach(p => Cart.add({id:p.id,title:p.title,price:p.price,image:p.image||'',variant:'',qty:1}));
+    Toast.show('success','🛒 Tout ajouté au panier!',`${State.wishlist.length} article(s) ajoutés`);
+  }
+
+  function shareWishlist() {
+    if (navigator.share) {
+      navigator.share({ title:'Ma wishlist Jloodna', url: window.location.href });
+    } else {
+      navigator.clipboard?.writeText(window.location.href);
+      Toast.show('success','🔗 Lien copié!','Partagez votre liste de favoris');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', renderWishlist);
+</script>
+</body>
+</html>

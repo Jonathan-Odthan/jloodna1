@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Contact — Jloodna</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .contact-layout{display:grid;gap:32px;grid-template-columns:1fr}
+    @media(min-width:900px){.contact-layout{grid-template-columns:1fr 1fr}}
+    .contact-info-card{background:linear-gradient(135deg,#0a2342,#1565c0);border-radius:20px;padding:32px;color:#fff;height:fit-content}
+    .info-item{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px}
+    .info-icon{font-size:28px;flex-shrink:0}
+    .info-label{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px}
+    .info-value{font-size:15px;font-weight:600;margin-top:2px}
+    .contact-form-card{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:32px}
+    .char-count{font-size:11px;color:#9aa3b2;float:right}
+    .map-embed{border-radius:16px;overflow:hidden;height:200px;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);display:flex;align-items:center;justify-content:center;margin-top:24px}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a><span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Contact</span>
+  </div>
+  <div style="text-align:center;margin-bottom:40px">
+    <h1 class="section-title">Contactez-<span>nous</span> 📬</h1>
+    <p style="color:#9aa3b2;font-size:15px;margin-top:8px">Notre équipe est disponible 7j/7 pour répondre à vos questions</p>
+  </div>
+
+  <div class="contact-layout">
+    <!-- Info -->
+    <div class="contact-info-card">
+      <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:24px">Nos coordonnées</h3>
+      <div class="info-item">
+        <span class="info-icon">📱</span>
+        <div><div class="info-label">WhatsApp / NatCash</div><div class="info-value">+509 40 89 40 38</div></div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📧</span>
+        <div><div class="info-label">Email</div><div class="info-value">contact@jloodna.com</div></div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📍</span>
+        <div><div class="info-label">Localisation</div><div class="info-value">Port-au-Prince, Haiti<br><span style="opacity:.7;font-size:13px">& Santo Domingo, RD</span></div></div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">🕒</span>
+        <div><div class="info-label">Horaires support</div><div class="info-value">Lun–Ven: 8h–20h<br><span style="opacity:.7;font-size:13px">Sam–Dim: 9h–17h</span></div></div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.15);padding-top:20px;margin-top:4px">
+        <div style="font-size:13px;opacity:.8;margin-bottom:12px">Nous rejoindre sur les réseaux</div>
+        <div style="display:flex;gap:10px">
+          <a href="#" style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">📘</a>
+          <a href="#" style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px">📸</a>
+          <a href="https://wa.me/50940894038" target="_blank" style="width:38px;height:38px;border-radius:50%;background:rgba(37,211,102,.3);display:flex;align-items:center;justify-content:center;font-size:18px">💬</a>
+        </div>
+      </div>
+      <div class="map-embed">
+        <div style="text-align:center;color:#1565c0"><div style="font-size:48px">🗺️</div><div style="font-weight:700;font-size:14px;margin-top:8px">Port-au-Prince, Haiti</div></div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="contact-form-card">
+      <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:#0a2342;margin-bottom:6px">Envoyer un message</h3>
+      <p style="font-size:13px;color:#9aa3b2;margin-bottom:24px">Réponse garantie dans les 24 heures</p>
+      <form id="contactForm" novalidate>
+        <div class="form-row form-row-2">
+          <div class="form-group"><label class="form-label">Prénom *</label><input type="text" id="cFirst" class="form-control" placeholder="Jean" required></div>
+          <div class="form-group"><label class="form-label">Nom *</label><input type="text" id="cLast" class="form-control" placeholder="Robert" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email *</label><input type="email" id="cEmail" class="form-control" placeholder="vous@exemple.com" required></div>
+        <div class="form-group"><label class="form-label">Téléphone</label><input type="tel" id="cPhone" class="form-control" placeholder="+509 XXXX XXXX"></div>
+        <div class="form-group">
+          <label class="form-label">Sujet *</label>
+          <select id="cSubject" class="form-control" required>
+            <option value="">Sélectionner un sujet</option>
+            <option>📦 Problème de commande</option>
+            <option>💳 Question de paiement</option>
+            <option>🚚 Problème de livraison</option>
+            <option>↩️ Retour & Remboursement</option>
+            <option>🌐 Partenariat Dropshipping</option>
+            <option>👤 Problème de compte</option>
+            <option>💡 Suggestion / Amélioration</option>
+            <option>🛍️ Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Numéro de commande (si applicable)</label>
+          <input type="text" id="cOrderId" class="form-control" placeholder="JL-XXXXXXXXXX" style="font-family:var(--font-mono)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message * <span class="char-count" id="charCount">0/1000</span></label>
+          <textarea id="cMessage" class="form-control" rows="5" placeholder="Décrivez votre demande en détail…" maxlength="1000" oninput="document.getElementById('charCount').textContent=this.value.length+'/1000'" required></textarea>
+          <div class="form-error" id="msgErr"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cCopy" style="accent-color:#0a2342">
+            Recevoir une copie de ce message par email
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="contactBtn">📨 Envoyer le message</button>
+      </form>
+
+      <div id="successMsg" style="display:none;text-align:center;padding:32px">
+        <div style="font-size:64px;margin-bottom:16px">✅</div>
+        <h3 style="font-weight:700;color:#0a2342;margin-bottom:8px">Message envoyé!</h3>
+        <p style="color:#4a5568;font-size:14px;margin-bottom:20px">Nous vous répondrons dans les 24 heures. Numéro de ticket: <strong id="ticketId" style="color:#ff6f00"></strong></p>
+        <button onclick="document.getElementById('contactForm').style.display='block';document.getElementById('successMsg').style.display='none'" class="btn btn-outline">Envoyer un autre message</button>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  document.getElementById('contactForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const first = document.getElementById('cFirst').value.trim();
+    const last = document.getElementById('cLast').value.trim();
+    const email = document.getElementById('cEmail').value.trim();
+    const subject = document.getElementById('cSubject').value;
+    const message = document.getElementById('cMessage').value.trim();
+    document.getElementById('msgErr').textContent = '';
+
+    if (!first||!last) { Toast.show('warning','Requis','Prénom et nom obligatoires.'); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { Toast.show('warning','Email invalide','Entrez un email valide.'); return; }
+    if (!subject) { Toast.show('warning','Requis','Sélectionnez un sujet.'); return; }
+    if (message.length < 10) { document.getElementById('msgErr').textContent = 'Message trop court (min 10 caractères).'; return; }
+
+    const btn = document.getElementById('contactBtn');
+    btn.innerHTML = '<span class="loader"></span> Envoi en cours…'; btn.disabled = true;
+    await new Promise(r => setTimeout(r, 1200));
+
+    const ticketId = 'TK-' + Date.now();
+    document.getElementById('ticketId').textContent = ticketId;
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+  });
+</script>
+</body>
+</html>

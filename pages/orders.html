@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Mes Commandes — Jloodna</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .order-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:16px;transition:box-shadow .2s}
+    .order-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+    .order-card-header{padding:16px 20px;background:#f8f8f5;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .order-card-body{padding:16px 20px}
+    .order-item-row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0e8}
+    .order-item-row:last-child{border:none}
+    .order-img{width:54px;height:54px;border-radius:8px;object-fit:cover;background:#f5f5f0;flex-shrink:0}
+    .order-status{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
+    .steps-mini{display:flex;gap:0;margin:12px 0}
+    .step-mini{flex:1;height:4px;background:#e2e8f0;border-radius:2px;margin:0 2px;transition:background .3s}
+    .step-mini.done{background:#2e7d32}
+    .step-mini.active{background:#1565c0}
+    .filter-tabs{display:flex;gap:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:4px;margin-bottom:20px;overflow-x:auto}
+    .filter-tab{flex:1;padding:8px 12px;border-radius:7px;font-size:13px;font-weight:600;color:#4a5568;cursor:pointer;border:none;background:none;white-space:nowrap;transition:all .15s;text-align:center;min-width:fit-content}
+    .filter-tab.active{background:#0a2342;color:#fff}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a><span class="breadcrumb-sep">›</span>
+    <a href="account.html">Mon compte</a><span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Mes Commandes</span>
+  </div>
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">📦 Mes <span>Commandes</span></h1>
+      <p class="section-subtitle" id="orderCount">Chargement…</p>
+    </div>
+    <a href="track.html" class="btn btn-outline">📍 Suivi express</a>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <input type="text" id="orderSearch" class="form-control" placeholder="🔍 Rechercher par numéro ou produit…" style="flex:1;min-width:200px" oninput="filterOrders()">
+    <select id="orderDateFilter" class="form-control" style="width:auto" onchange="filterOrders()">
+      <option value="">Toutes les périodes</option>
+      <option value="30">30 derniers jours</option>
+      <option value="90">3 derniers mois</option>
+      <option value="180">6 derniers mois</option>
+    </select>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setTab('all',this)">Toutes</button>
+    <button class="filter-tab" onclick="setTab('pending',this)">⏳ En attente</button>
+    <button class="filter-tab" onclick="setTab('processing',this)">⚙️ Traitement</button>
+    <button class="filter-tab" onclick="setTab('shipped',this)">🚚 En transit</button>
+    <button class="filter-tab" onclick="setTab('delivered',this)">✅ Livrées</button>
+    <button class="filter-tab" onclick="setTab('cancelled',this)">❌ Annulées</button>
+  </div>
+
+  <div id="ordersList"></div>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Détails de la commande</div>
+        <button onclick="document.getElementById('orderModal').classList.remove('open')" style="font-size:20px;color:#9aa3b2;background:none;padding:4px">✕</button>
+      </div>
+      <div class="modal-body" id="orderModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="document.getElementById('orderModal').classList.remove('open')">Fermer</button>
+        <a id="orderModalTrack" href="#" class="btn btn-primary">📍 Suivre</a>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  let currentTab = 'all';
+  const STATUS = {
+    pending:  {label:'⏳ En attente', color:'#f57f17', bg:'#fff8e1', step:1},
+    processing:{label:'⚙️ Traitement', color:'#1565c0', bg:'#e3f2fd', step:2},
+    shipped:  {label:'🚚 En transit', color:'#6a1b9a', bg:'#f3e5f5', step:3},
+    delivered:{label:'✅ Livrée',     color:'#2e7d32', bg:'#e8f5e9', step:4},
+    cancelled:{label:'❌ Annulée',    color:'#c62828', bg:'#ffebee', step:0},
+  };
+
+  function stepClass(current, idx) {
+    if (!current) return '';
+    const s = STATUS[current]?.step || 0;
+    if (s === 0) return '';
+    if (idx < s) return 'done';
+    if (idx === s) return 'active';
+    return '';
+  }
+
+  async function renderOrders() {
+    let allOrders = JSON.parse(localStorage.getItem('jl_orders') || '[]');
+    const token = sessionStorage.getItem('jl_token');
+    if (token) {
+      try {
+        const response = await fetch('/api/orders/my', { headers: { Authorization: `Bearer ${token}` }, credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          allOrders = data.orders.map(order => ({ ...order, date: order.createdAt }));
+          localStorage.setItem('jl_orders', JSON.stringify(allOrders));
+        }
+      } catch (_) {}
+    }
+    let orders = allOrders;
+    const q = document.getElementById('orderSearch')?.value.toLowerCase();
+    const days = parseInt(document.getElementById('orderDateFilter')?.value);
+    if (currentTab !== 'all') orders = orders.filter(o => o.status === currentTab);
+    if (q) orders = orders.filter(o => o.id?.toLowerCase().includes(q) || (o.items||[]).some(i => i.title?.toLowerCase().includes(q)));
+    if (days) { const cutoff = Date.now() - days * 86400000; orders = orders.filter(o => new Date(o.date) > cutoff); }
+
+    document.getElementById('orderCount').textContent = `${allOrders.length} commande(s) au total`;
+    const el = document.getElementById('ordersList');
+
+    if (!orders.length) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📦</div>
+        <div class="empty-state-title">${currentTab === 'all' ? 'Aucune commande' : 'Aucune commande dans cette catégorie'}</div>
+        <div class="empty-state-msg">Commencez à acheter pour voir vos commandes ici.</div>
+        <a href="shop.html" class="btn btn-primary btn-lg">🛍️ Découvrir la boutique</a></div>`;
+      return;
+    }
+
+    el.innerHTML = orders.map(o => {
+      const s = STATUS[o.status] || STATUS.pending;
+      const steps = ['pending','processing','shipped','delivered'].map((_, i) => `<div class="step-mini ${stepClass(o.status, i+1)}"></div>`).join('');
+      return `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div>
+            <span style="font-size:11px;color:#9aa3b2;display:block;margin-bottom:2px">Commande</span>
+            <span style="font-family:monospace;font-weight:700;color:#0a2342;font-size:15px">${o.id}</span>
+          </div>
+          <div style="text-align:center">
+            <span style="font-size:11px;color:#9aa3b2;display:block;margin-bottom:2px">Date</span>
+            <span style="font-size:13px;font-weight:600">${new Date(o.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</span>
+          </div>
+          <div style="text-align:center">
+            <span style="font-size:11px;color:#9aa3b2;display:block;margin-bottom:2px">Total</span>
+            <span style="font-size:18px;font-weight:900;color:#ff6f00">${Currency.format(o.total)}</span>
+          </div>
+          <div style="text-align:right">
+            <span class="order-status" style="background:${s.bg};color:${s.color}">${s.label}</span>
+          </div>
+        </div>
+        <div class="order-card-body">
+          ${o.status !== 'cancelled' ? `<div class="steps-mini">${steps}</div>` : ''}
+          ${(o.items||[]).slice(0,3).map(item => `
+            <div class="order-item-row">
+              <img class="order-img" src="${item.image||''}" alt="${item.title}" onerror="this.src=''">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#1a1a2e">${item.title}</div>
+                ${item.variant ? `<div style="font-size:11px;color:#9aa3b2">${item.variant}</div>` : ''}
+                <div style="font-size:12px;color:#9aa3b2">Qté: ${item.qty}</div>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#0a2342">${Currency.format(item.price * item.qty)}</div>
+            </div>`).join('')}
+          ${(o.items||[]).length > 3 ? `<div style="font-size:12px;color:#9aa3b2;padding:8px 0">+${o.items.length - 3} autre(s) article(s)</div>` : ''}
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="viewOrderDetail('${o.id}')">📋 Détails</button>
+            <a href="track.html?id=${o.id}" class="btn btn-outline btn-sm">📍 Suivre</a>
+            ${o.status === 'delivered' ? `<button class="btn btn-sm" style="background:#fff8e1;color:#f57f17;border:1px solid #fde68a" onclick="reorder('${o.id}')">🔄 Recommander</button>` : ''}
+            ${o.status === 'pending' || o.status === 'processing' ? `<button class="btn btn-sm" style="background:#fff3f3;color:#c62828;border:1px solid #fca5a5" onclick="cancelOrder('${o.id}')">❌ Annuler</button>` : ''}
+            ${o.status === 'delivered' ? `<button class="btn btn-sm" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #e9d5ff" onclick="leaveReview('${o.id}')">⭐ Laisser un avis</button>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function setTab(tab, btn) {
+    currentTab = tab;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderOrders();
+  }
+
+  function filterOrders() { renderOrders(); }
+
+  function viewOrderDetail(id) {
+    const o = JSON.parse(localStorage.getItem('jl_orders') || '[]').find(x => x.id === id);
+    if (!o) return;
+    const s = STATUS[o.status] || STATUS.pending;
+    document.getElementById('orderModalBody').innerHTML = `
+      <div style="background:#f8f8f5;border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div><div style="font-size:11px;color:#9aa3b2">Numéro</div><div style="font-family:monospace;font-weight:700;font-size:15px;color:#0a2342">${o.id}</div></div>
+          <div><div style="font-size:11px;color:#9aa3b2">Date</div><div style="font-size:13px;font-weight:600">${new Date(o.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div></div>
+          <div><span class="order-status" style="background:${s.bg};color:${s.color}">${s.label}</span></div>
+        </div>
+      </div>
+      <h4 style="font-weight:700;color:#0a2342;margin-bottom:10px">Articles</h4>
+      ${(o.items||[]).map(i => `
+        <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0e8">
+          <img src="${i.image||''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;background:#f5f5f0" onerror="this.src=''">
+          <div style="flex:1;font-size:13px;font-weight:600;color:#0a2342">${i.title}</div>
+          <div style="font-size:13px;font-weight:700;color:#ff6f00">${Currency.format(i.price*i.qty)}</div>
+        </div>`).join('')}
+      <div style="margin-top:14px;padding-top:14px;border-top:2px solid #e2e8f0">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#4a5568;margin-bottom:4px"><span>Sous-total</span><span>${Currency.format(o.total - (o.shipping?.price||0))}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#4a5568;margin-bottom:4px"><span>Livraison</span><span>${Currency.format(o.shipping?.price||0)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;color:#0a2342;margin-top:8px"><span>Total</span><span>${Currency.format(o.total)}</span></div>
+        <div style="font-size:11px;color:#9aa3b2;text-align:right">≈ ${Currency.format(o.total,'DOP')}</div>
+      </div>
+      ${o.address ? `<div style="margin-top:14px;background:#f0f4ff;border-radius:8px;padding:12px;font-size:13px;color:#4a5568">
+        <strong style="color:#0a2342">📍 Livraison:</strong> ${o.address.name} · ${o.address.city} · ${o.address.phone}</div>` : ''}`;
+    document.getElementById('orderModalTrack').href = `track.html?id=${o.id}`;
+    document.getElementById('orderModal').classList.add('open');
+  }
+
+  function reorder(id) {
+    const o = JSON.parse(localStorage.getItem('jl_orders') || '[]').find(x => x.id === id);
+    if (!o) return;
+    (o.items||[]).forEach(i => Cart.add({id:i.id,title:i.title,price:i.price,image:i.image||'',variant:i.variant||'',qty:i.qty}));
+    Toast.show('success','🛒 Articles ajoutés!','Vos articles ont été ajoutés au panier.');
+  }
+
+  async function cancelOrder(id) {
+    if (!confirm('Annuler cette commande?')) return;
+    const orders = JSON.parse(localStorage.getItem('jl_orders') || '[]');
+    const o = orders.find(x => x.id === id);
+    const token = sessionStorage.getItem('jl_token');
+    if (token) {
+      const response = await fetch(`/api/orders/${encodeURIComponent(id)}/cancel`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, credentials: 'include' });
+      if (!response.ok) { Toast.show('error', 'Annulation impossible', 'Cette commande ne peut plus être annulée.'); return; }
+    }
+    if (o) { o.status = 'cancelled'; localStorage.setItem('jl_orders', JSON.stringify(orders)); renderOrders(); Toast.show('info','Commande annulée'); }
+  }
+
+  function leaveReview(id) {
+    Toast.show('info','⭐ Avis','Redirection vers la page produit…');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(sessionStorage.getItem('jl_user') || 'null');
+    if (!user) { window.location.href = '../auth/login.html?redirect=orders.html'; return; }
+    renderOrders();
+  });
+</script>
+</body>
+</html>

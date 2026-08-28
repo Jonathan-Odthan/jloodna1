@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Offres du Jour — Jloodna</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .deals-hero{background:linear-gradient(135deg,#b71c1c,#e53935,#ff6f00);padding:40px 24px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .deals-hero::before{content:'🔥';font-size:200px;position:absolute;right:-20px;top:-40px;opacity:.1}
+    .big-timer{display:flex;gap:16px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+    .big-unit{background:rgba(0,0,0,.25);border-radius:12px;padding:14px 20px;min-width:72px;text-align:center}
+    .big-num{font-size:36px;font-weight:900;line-height:1}
+    .big-label{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:1px}
+    .deal-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#c62828;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .category-deals{margin-bottom:48px}
+    .progress-deal{background:#e2e8f0;height:6px;border-radius:3px;margin-top:6px}
+    .progress-deal-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#c62828,#ff6f00);transition:width .5s}
+    .sold-text{font-size:11px;color:#c62828;font-weight:700}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+
+<div class="deals-hero">
+  <div style="font-size:12px;font-weight:700;letter-spacing:2px;opacity:.8;text-transform:uppercase;margin-bottom:8px">⚡ OFFRES FLASH</div>
+  <h1 style="font-family:var(--font-display);font-size:clamp(28px,5vw,48px);font-weight:700;margin-bottom:8px">🔥 Offres du Jour</h1>
+  <p style="opacity:.9;font-size:15px">Des prix exceptionnels — disponibles pour une durée limitée</p>
+  <div class="big-timer">
+    <div class="big-unit"><div class="big-num" data-h>00</div><div class="big-label">Heures</div></div>
+    <div class="big-unit" style="background:rgba(0,0,0,.1);font-size:28px;font-weight:700;display:flex;align-items:center;padding:14px 4px">:</div>
+    <div class="big-unit"><div class="big-num" data-m>00</div><div class="big-label">Minutes</div></div>
+    <div class="big-unit" style="background:rgba(0,0,0,.1);font-size:28px;font-weight:700;display:flex;align-items:center;padding:14px 4px">:</div>
+    <div class="big-unit"><div class="big-num" data-s>00</div><div class="big-label">Secondes</div></div>
+  </div>
+</div>
+
+<main class="container section">
+  <!-- Featured deal -->
+  <div style="background:linear-gradient(135deg,#0a2342,#1565c0);border-radius:20px;padding:32px;margin-bottom:40px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;position:relative">
+    <div class="deal-badge">⭐ DEAL DU JOUR</div>
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:12px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Électronique</div>
+      <h2 style="font-family:var(--font-display);font-size:clamp(20px,3vw,30px);font-weight:700;color:#fff;margin-bottom:12px">iPhone 15 Pro Max 256GB</h2>
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <span style="font-size:14px;color:rgba(255,255,255,.5);text-decoration:line-through" data-price="95000" id="featOld">G 95,000</span>
+        <span style="font-size:36px;font-weight:900;color:#ffa726" data-price="85000" id="featPrice">G 85,000</span>
+        <span style="background:#c62828;color:#fff;font-size:13px;font-weight:700;padding:4px 10px;border-radius:20px">-11%</span>
+      </div>
+      <div class="progress-deal" style="margin-bottom:6px"><div class="progress-deal-fill" style="width:68%"></div></div>
+      <div class="sold-text" style="color:#ffa726">🔥 68% vendus — Plus que 4 en stock!</div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" onclick="Cart.add({id:'p001',title:'iPhone 15 Pro Max 256GB',price:85000,image:'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400',variant:''})">🛒 Ajouter au panier</button>
+        <a href="product.html?id=p001" class="btn btn-secondary btn-lg">Voir les détails →</a>
+      </div>
+    </div>
+    <div style="font-size:120px;opacity:.6;flex-shrink:0">📱</div>
+  </div>
+
+  <!-- Categories deals -->
+  <div class="category-deals">
+    <div class="section-header">
+      <div><h2 class="section-title">⚡ Offres <span>Flash</span></h2><p class="section-subtitle">Quantités très limitées</p></div>
+      <a href="shop.html" class="section-link">Voir tout →</a>
+    </div>
+    <div class="product-grid" id="flashDeals"></div>
+  </div>
+
+  <div class="category-deals">
+    <div class="section-header">
+      <div><h2 class="section-title">💎 Sélection <span>Premium</span></h2><p class="section-subtitle">Nos meilleures réductions du mois</p></div>
+    </div>
+    <div class="product-grid" id="premiumDeals"></div>
+  </div>
+
+  <!-- Newsletter deals -->
+  <div style="background:linear-gradient(135deg,#ff6f00,#ffa726);border-radius:20px;padding:32px;text-align:center;margin-top:16px">
+    <h3 style="font-family:var(--font-display);font-size:24px;font-weight:700;color:#fff;margin-bottom:8px">🔔 Alertes offres exclusives</h3>
+    <p style="color:rgba(255,255,255,.9);font-size:14px;margin-bottom:20px">Soyez le premier informé des offres flash et promotions spéciales.</p>
+    <div style="display:flex;gap:0;border-radius:10px;overflow:hidden;max-width:400px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.2)">
+      <input type="email" id="dealsEmail" placeholder="votre@email.com" style="flex:1;padding:13px 16px;border:none;font-size:14px">
+      <button onclick="subscribeDeals()" style="padding:0 22px;background:#0a2342;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer">M'alerter</button>
+    </div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+  <script src="../frontend/assets/js/realtime.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Countdown
+    const end = new Date(); end.setHours(23,59,59,0);
+    const tick = () => {
+      const diff = end - new Date();
+      if (diff <= 0) return;
+      document.querySelector('[data-h]').textContent = String(Math.floor(diff/3600000)).padStart(2,'0');
+      document.querySelector('[data-m]').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+      document.querySelector('[data-s]').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+    };
+    tick(); setInterval(tick, 1000);
+    // Update featured prices with current currency
+    document.getElementById('featOld').textContent = Currency.format(95000);
+    document.getElementById('featPrice').textContent = Currency.format(85000);
+    // Render grids
+    const hotProds = Products.hot();
+    const saleProds = Products.all().filter(p => p.priceOld && p.priceOld > p.price && p.status === 'active');
+    Products.renderGrid(hotProds.slice(0,6), 'flashDeals');
+    Products.renderGrid(saleProds.length ? saleProds.slice(0,6) : Products.featured().slice(0,6), 'premiumDeals');
+  });
+
+  function subscribeDeals() {
+    const email = document.getElementById('dealsEmail').value;
+    if (!email || !email.includes('@')) { Toast.show('error','Email invalide'); return; }
+    Toast.show('success','🔔 Abonné!','Vous recevrez nos meilleures offres en priorité!');
+    document.getElementById('dealsEmail').value = '';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produit — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .product-layout { display:grid; gap:40px; grid-template-columns:1fr; }
+    @media(min-width:900px){ .product-layout{grid-template-columns:1fr 1fr} }
+    .thumb-list { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .thumb { width:64px; height:64px; border-radius:8px; object-fit:cover; border:2px solid transparent; cursor:pointer; transition:all .15s; }
+    .thumb.active, .thumb:hover { border-color:#0a2342; }
+    .main-img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:16px; background:#f5f5f0; border:1px solid #e2e8f0; }
+    .variant-group { margin-bottom:16px; }
+    .variant-label { font-size:13px; font-weight:700; color:#0a2342; margin-bottom:8px; }
+    .variant-options { display:flex; gap:8px; flex-wrap:wrap; }
+    .variant-btn { padding:7px 16px; border:2px solid #e2e8f0; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; background:#fff; }
+    .variant-btn.active { border-color:#0a2342; background:#0a2342; color:#fff; }
+    .qty-section { display:flex; align-items:center; gap:16px; margin:16px 0; }
+    .qty-control { display:flex; align-items:center; gap:0; border:2px solid #e2e8f0; border-radius:10px; overflow:hidden; }
+    .qty-control button { width:40px; height:44px; background:#f5f5f0; border:none; font-size:20px; cursor:pointer; transition:background .15s; }
+    .qty-control button:hover { background:#e2e8f0; }
+    .qty-control input { width:56px; height:44px; border:none; text-align:center; font-size:16px; font-weight:700; }
+    .atc-group { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
+    .atc-group .btn { flex:1; min-width:140px; padding:14px 20px; font-size:15px; }
+    .product-meta { display:grid; grid-template-columns:auto 1fr; gap:6px 16px; font-size:13px; margin-top:16px; }
+    .product-meta dt { color:#9aa3b2; font-weight:500; }
+    .product-meta dd { color:#1a1a2e; font-weight:600; }
+    .stock-bar { height:6px; background:#e2e8f0; border-radius:3px; margin-top:4px; overflow:hidden; }
+    .stock-fill { height:100%; background:#2e7d32; border-radius:3px; transition:width .5s; }
+    .review-item { border-bottom:1px solid #e2e8f0; padding:16px 0; }
+    .review-item:last-child { border:none; }
+    .review-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+    .review-avatar { width:36px; height:36px; border-radius:50%; background:#0a2342; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+    .related-grid { display:grid; gap:16px; grid-template-columns:repeat(2,1fr); }
+    @media(min-width:640px){.related-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:1000px){.related-grid{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+
+<main class="container section">
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="../index.html">Accueil</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="shop.html">Boutique</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current" id="breadcrumbTitle">Produit</span>
+  </div>
+
+  <div id="productContent" class="page-loader"><div class="loader loader-dark"></div></div>
+</main>
+
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  const REVIEWS_DEMO = [
+    { name: 'Jean-Robert', rating: 5, date: '2025-04-10', text: 'Produit excellent, conforme à la description. Livraison rapide en Haiti. Je recommande!', verified: true },
+    { name: 'Maria García', rating: 4, date: '2025-03-28', text: 'Muy buena calidad, llegó en perfecto estado. Solo un poco de demora en el envío.', verified: true },
+    { name: 'Pierre C.', rating: 5, date: '2025-03-15', text: 'Parfait! Emballage soigné, produit authentique. Service client très réactif.', verified: false },
+  ];
+
+  function renderStars(r) {
+    return '★'.repeat(Math.floor(r)) + '☆'.repeat(5 - Math.floor(r));
+  }
+
+  function renderProduct(p) {
+    const discountPct = p.priceOld ? Math.round((1 - p.price / p.priceOld) * 100) : 0;
+    const stockPct = Math.min((p.stock / 50) * 100, 100);
+    const related = Products.byCategory(p.category).filter(x => x.id !== p.id).slice(0, 4);
+
+    document.title = `${p.title} — Jloodna`;
+    document.getElementById('breadcrumbTitle').textContent = p.title;
+
+    document.getElementById('productContent').innerHTML = `
+      <div class="product-layout">
+        <!-- Images -->
+        <div>
+          <img id="mainProductImg" class="main-img" src="${p.image}" alt="${sanitize(p.title)}" onerror="this.src='../frontend/assets/images/placeholder.svg'">
+          <div class="thumb-list">
+            <img class="thumb active" src="${p.image}" onclick="setImg(this)" alt="">
+            <img class="thumb" src="${p.image}" onclick="setImg(this)" alt="" style="filter:brightness(.8)">
+            <img class="thumb" src="${p.image}" onclick="setImg(this)" alt="" style="filter:hue-rotate(30deg)">
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+            ${discountPct > 0 ? `<span class="badge badge-sale">-${discountPct}%</span>` : ''}
+            ${p.tags.includes('new') ? '<span class="badge badge-new">Nouveau</span>' : ''}
+            ${p.tags.includes('hot') ? '<span class="badge badge-hot">🔥 Hot</span>' : ''}
+            ${p.dropship ? '<span class="badge" style="background:#6a1b9a;color:#fff">Dropshipping</span>' : ''}
+          </div>
+          <span style="font-size:13px;color:#9aa3b2;text-transform:uppercase;letter-spacing:.5px">${CATEGORIES.find(c=>c.slug===p.category)?.name||p.category}</span>
+          <h1 style="font-family:var(--font-display);font-size:clamp(20px,3vw,30px);font-weight:700;color:#0a2342;margin:8px 0;line-height:1.3">${sanitize(p.title)}</h1>
+          <div style="color:#4a5568;font-size:14px;margin-bottom:8px">Par <a href="shop.html?brand=${encodeURIComponent(p.brand)}" style="color:#1565c0;font-weight:600">${p.brand}</a> · SKU: <code>${p.sku}</code></div>
+          <div class="product-stars" style="margin-bottom:12px">
+            <span class="stars" style="font-size:18px">${renderStars(p.rating)}</span>
+            <span style="font-size:14px;color:#9aa3b2">${p.rating}/5 (${p.reviews} avis)</span>
+          </div>
+
+          <!-- Price -->
+          <div style="background:#f5f5f0;border-radius:12px;padding:16px;margin-bottom:16px">
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+              ${p.priceOld ? `<span style="font-size:14px;color:#9aa3b2;text-decoration:line-through" data-price="${p.priceOld}">${Currency.format(p.priceOld)}</span>` : ''}
+              <span style="font-size:32px;font-weight:900;color:#0a2342" data-price="${p.price}">${Currency.format(p.price)}</span>
+              ${discountPct > 0 ? `<span style="background:#c62828;color:#fff;font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px">-${discountPct}%</span>` : ''}
+            </div>
+            <div style="font-size:12px;color:#4a5568;margin-top:4px">≈ ${Currency.format(p.price, 'DOP')} · Taxes incluses</div>
+          </div>
+
+          <!-- Variants -->
+          ${p.variants ? p.variants.map((v, vi) => `
+            <div class="variant-group">
+              <div class="variant-label">${v.name}: <span id="variantSelected${vi}" style="color:#ff6f00">${v.options[0]}</span></div>
+              <div class="variant-options">
+                ${v.options.map((opt, oi) => `<button class="variant-btn ${oi===0?'active':''}" onclick="selectVariant(this,'variantSelected${vi}')">${opt}</button>`).join('')}
+              </div>
+            </div>`).join('') : ''}
+
+          <!-- Stock -->
+          <div style="margin:12px 0">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+              <span style="color:${p.stock > 5 ? '#2e7d32' : '#c62828'};font-weight:700">${p.stock > 0 ? (p.stock > 5 ? '✅ En stock' : `⚠️ Plus que ${p.stock} en stock!`) : '❌ Rupture de stock'}</span>
+              <span style="color:#9aa3b2">${p.stock} disponibles</span>
+            </div>
+            <div class="stock-bar"><div class="stock-fill" style="width:${stockPct}%"></div></div>
+          </div>
+
+          <!-- Qty + ATC -->
+          <div class="qty-section">
+            <div class="qty-control">
+              <button onclick="changeQty(-1)">−</button>
+              <input type="number" id="qtyInput" value="1" min="1" max="${p.stock}">
+              <button onclick="changeQty(1)">+</button>
+            </div>
+          </div>
+          <div class="atc-group">
+            <button id="mainAtcBtn" class="btn btn-primary" onclick="addToCart()" ${p.stock===0?'disabled':''}>
+              🛒 Ajouter au panier
+            </button>
+            <button class="btn btn-dark" onclick="buyNow()" ${p.stock===0?'disabled':''}>
+              ⚡ Acheter maintenant
+            </button>
+            <button class="btn btn-outline btn-icon" data-wishlist-btn="${p.id}" onclick='Wishlist.toggle(${JSON.stringify({id:p.id,title:p.title,price:p.price,image:p.image})});this.classList.toggle("active")' title="Ajouter aux favoris" style="flex:none;padding:14px 16px">
+              ${Wishlist.has(p.id) ? '❤️' : '🤍'}
+            </button>
+          </div>
+
+          <!-- Meta -->
+          <dl class="product-meta" style="margin-top:20px">
+            <dt>Référence SKU</dt><dd>${p.sku}</dd>
+            <dt>Catégorie</dt><dd>${CATEGORIES.find(c=>c.slug===p.category)?.name||p.category}</dd>
+            <dt>Marque</dt><dd>${p.brand}</dd>
+            ${p.weight ? `<dt>Poids</dt><dd>${p.weight} kg</dd>` : ''}
+            ${p.dropship ? '<dt>Dropshipping</dt><dd style="color:#6a1b9a">✓ Oui</dd>' : ''}
+          </dl>
+
+          <!-- Trust -->
+          <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+            <span style="font-size:12px;color:#4a5568;display:flex;align-items:center;gap:4px">🔒 Paiement sécurisé</span>
+            <span style="font-size:12px;color:#4a5568;display:flex;align-items:center;gap:4px">↩️ Retour 30 jours</span>
+            <span style="font-size:12px;color:#4a5568;display:flex;align-items:center;gap:4px">🚚 Livraison rapide</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="margin-top:48px">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this,'desc')">📋 Description</button>
+          <button class="tab-btn" onclick="switchTab(this,'reviews')">⭐ Avis (${p.reviews})</button>
+          <button class="tab-btn" onclick="switchTab(this,'shipping')">🚚 Livraison</button>
+        </div>
+        <div id="desc" class="tab-panel active">
+          <div style="font-size:15px;line-height:1.9;color:#4a5568;max-width:700px">${p.description || 'Aucune description disponible.'}</div>
+        </div>
+        <div id="reviews" class="tab-panel">
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;flex-wrap:wrap">
+            <div style="text-align:center">
+              <div style="font-size:56px;font-weight:900;color:#0a2342;line-height:1">${p.rating}</div>
+              <div style="color:#d4a017;font-size:22px">${renderStars(p.rating)}</div>
+              <div style="font-size:13px;color:#9aa3b2">${p.reviews} avis vérifiés</div>
+            </div>
+          </div>
+          ${REVIEWS_DEMO.map(r => `
+            <div class="review-item">
+              <div class="review-header">
+                <div class="review-avatar">${r.name[0]}</div>
+                <div><div style="font-weight:700;font-size:14px">${r.name} ${r.verified?'<span style="font-size:11px;color:#2e7d32;background:#e8f5e9;padding:2px 6px;border-radius:4px">✓ Vérifié</span>':''}</div>
+                <div style="color:#d4a017;font-size:14px">${renderStars(r.rating)}</div></div>
+                <span style="font-size:12px;color:#9aa3b2;margin-left:auto">${r.date}</span>
+              </div>
+              <p style="font-size:14px;color:#4a5568">${r.text}</p>
+            </div>`).join('')}
+          <div style="border-top:2px solid #e2e8f0;padding-top:24px;margin-top:16px">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Laisser un avis</h3>
+            <div style="margin-bottom:12px">
+              <div class="star-rating" id="reviewStars">
+                <input type="radio" id="s5" name="stars" value="5"><label for="s5">★</label>
+                <input type="radio" id="s4" name="stars" value="4"><label for="s4">★</label>
+                <input type="radio" id="s3" name="stars" value="3"><label for="s3">★</label>
+                <input type="radio" id="s2" name="stars" value="2"><label for="s2">★</label>
+                <input type="radio" id="s1" name="stars" value="1"><label for="s1">★</label>
+              </div>
+            </div>
+            <textarea class="form-control" placeholder="Partagez votre expérience avec ce produit…" rows="3" style="margin-bottom:10px"></textarea>
+            <button class="btn btn-primary" onclick="submitReview()">Publier l'avis</button>
+          </div>
+        </div>
+        <div id="shipping" class="tab-panel">
+          <div style="font-size:14px;color:#4a5568;line-height:1.9">
+            <p><strong>Haiti:</strong> 2–5 jours ouvrables · Livraison gratuite dès G 5 000</p>
+            <p><strong>République Dominicaine:</strong> 3–7 jours · Frais selon zone</p>
+            <p><strong>International:</strong> 7–15 jours · via DHL/FedEx</p>
+            <p style="margin-top:12px">Suivi en temps réel disponible dans votre espace "Mes commandes".</p>
+            ${p.dropship ? '<p style="color:#6a1b9a"><strong>⚠️ Dropshipping:</strong> Les délais peuvent varier selon le fournisseur. Nous assurons le suivi complet.</p>' : ''}
+          </div>
+        </div>
+      </div>
+
+      <!-- Related -->
+      ${related.length ? `
+      <div style="margin-top:48px">
+        <h2 class="section-title" style="margin-bottom:20px">Produits <span>similaires</span></h2>
+        <div class="related-grid">${related.map(rp => Products.renderCard(rp)).join('')}</div>
+      </div>` : ''}
+    `;
+
+    // Sticky ATC
+    const sticky = document.createElement('div');
+    sticky.className = 'sticky-atc';
+    sticky.id = 'stickyAtc';
+    sticky.innerHTML = `
+      <div class="sticky-atc-info">
+        <img class="sticky-atc-img" src="${p.image}" alt="">
+        <div><div class="sticky-atc-title">${p.title}</div><div class="sticky-atc-price">${Currency.format(p.price)}</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="addToCart()">🛒 Ajouter au panier</button>`;
+    document.body.appendChild(sticky);
+
+    const mainBtn = document.getElementById('mainAtcBtn');
+    if (mainBtn) {
+      new IntersectionObserver(e => sticky.classList.toggle('visible', !e[0].isIntersecting)).observe(mainBtn);
+    }
+
+    window._currentProduct = p;
+  }
+
+  function setImg(el) {
+    document.getElementById('mainProductImg').src = el.src;
+    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function changeQty(delta) {
+    const input = document.getElementById('qtyInput');
+    const p = window._currentProduct;
+    const val = Math.max(1, Math.min(parseInt(input.value) + delta, p?.stock || 99));
+    input.value = val;
+  }
+
+  function selectVariant(btn, labelId) {
+    btn.closest('.variant-options').querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(labelId).textContent = btn.textContent;
+  }
+
+  function addToCart() {
+    const p = window._currentProduct;
+    if (!p) return;
+    const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+    const variants = [...document.querySelectorAll('.variant-group')].map(g => {
+      const label = g.querySelector('.variant-label')?.textContent.split(':')[0];
+      const val = g.querySelector('.variant-btn.active')?.textContent;
+      return `${label}: ${val}`;
+    }).filter(Boolean).join(', ');
+    Cart.add({ id: p.id, title: p.title, price: p.price, image: p.image, variant: variants, qty });
+  }
+
+  function buyNow() {
+    addToCart();
+    setTimeout(() => window.location.href = 'checkout.html', 500);
+  }
+
+  function submitReview() {
+    if (!Auth.isLoggedIn()) { Toast.show('warning', 'Connexion requise', 'Connectez-vous pour laisser un avis'); return; }
+    Toast.show('success', 'Merci!', 'Votre avis a été soumis et sera publié après modération.');
+  }
+
+  function switchTab(btn, id) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id)?.classList.add('active');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const id = getParam('id');
+    if (!id) { document.getElementById('productContent').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-title">Produit introuvable</div><a href="shop.html" class="btn btn-primary">Retour à la boutique</a></div>'; return; }
+    const p = Products.get(id);
+    if (!p) { document.getElementById('productContent').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-title">Produit introuvable</div><a href="shop.html" class="btn btn-primary">Retour à la boutique</a></div>'; return; }
+    renderProduct(p);
+  });
+</script>
+</body>
+</html>

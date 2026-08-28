@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Jloodna Global Trading — Votre marketplace premium en Haiti et République Dominicaine. Achetez en ligne en HTG et DOP.">
+  <meta name="keywords" content="boutique en ligne haiti, marketplace haïti, ecommerce htg, jloodna">
+  <meta property="og:title" content="Jloodna | Global Trading">
+  <meta property="og:description" content="Marketplace premium Haiti & Dominican Republic">
+  <title>Jloodna | Global Trading — Accueil</title>
+  <link rel="icon" href="frontend/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="frontend/assets/css/main.css">
+  <style>
+    /* ── Hero ── */
+    .hero-slide-1 { background: linear-gradient(135deg, #0a2342 0%, #1565c0 60%, #0d47a1 100%); }
+    .hero-slide-2 { background: linear-gradient(135deg, #1a237e 0%, #4a148c 100%); }
+    .hero-slide-3 { background: linear-gradient(135deg, #b71c1c 0%, #ff6f00 100%); }
+    .ticker-wrap { background:#071929; overflow:hidden; padding:6px 0; }
+    .ticker { display:flex; gap:48px; animation:ticker 40s linear infinite; white-space:nowrap; font-size:12px; color:rgba(255,255,255,.8); }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .deals-grid { display:grid; gap:16px; grid-template-columns:repeat(2,1fr); }
+    @media(min-width:900px){ .deals-grid{grid-template-columns:repeat(4,1fr)} }
+    .deals-card { background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; text-align:center; }
+    .deals-card .img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; margin-bottom:10px; }
+    .brands-grid { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+    .brand-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px 24px;
+      font-weight:700; font-size:14px; color:#0a2342; transition:all .2s; cursor:pointer; }
+    .brand-card:hover { border-color:#1565c0; box-shadow:0 4px 16px rgba(0,0,0,.1); transform:translateY(-2px); }
+    .trust-grid { display:grid; gap:24px; grid-template-columns:repeat(2,1fr); }
+    @media(min-width:768px){ .trust-grid{grid-template-columns:repeat(4,1fr)} }
+    .trust-item { display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; }
+    .trust-icon { font-size:40px; }
+    .trust-title { font-weight:700; font-size:15px; color:#0a2342; }
+    .trust-desc { font-size:13px; color:#4a5568; }
+    .app-banner { background:linear-gradient(135deg, #0a2342, #1565c0); border-radius:16px; padding:32px;
+      display:flex; align-items:center; gap:32px; flex-wrap:wrap; }
+    .app-qr { width:80px; height:80px; background:#fff; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:32px; }
+  </style>
+</head>
+<body>
+  <!-- Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      🔥 Offres jusqu'à -70% · 📦 Livraison rapide Haiti & RD · 💳 Paiement PayPal &amp; NatCash sécurisé ·
+      🆕 Nouveaux produits chaque jour · ⭐ +10 000 clients satisfaits · 🌐 Dropshipping international ·
+      🔥 Offres jusqu'à -70% · 📦 Livraison rapide Haiti & RD · 💳 Paiement PayPal &amp; NatCash sécurisé ·
+      🆕 Nouveaux produits chaque jour · ⭐ +10 000 clients satisfaits · 🌐 Dropshipping international
+    </div>
+  </div>
+
+  <!-- Header injection point -->
+  <div id="appHeader"></div>
+
+  <main>
+    <!-- ── HERO SLIDER ── -->
+    <section class="hero-slider" id="heroSlider" aria-label="Bannière principale">
+      <div class="hero-slide hero-slide-1 active">
+        <div class="container">
+          <div class="hero-content">
+            <span class="hero-badge">⚡ Offre Flash — Limité</span>
+            <h1 class="hero-title">Technologie <span>Premium</span><br>au Meilleur Prix</h1>
+            <p class="hero-subtitle">iPhone, Samsung, MacBook et plus — livraison rapide en Haiti et République Dominicaine.</p>
+            <div class="hero-cta-group">
+              <a href="pages/category.html?cat=electronique" class="btn btn-primary btn-lg">🛍️ Découvrir</a>
+              <a href="pages/deals.html" class="btn btn-secondary btn-lg">🔥 Offres du Jour</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-slide hero-slide-2">
+        <div class="container">
+          <div class="hero-content">
+            <span class="hero-badge">👗 Nouvelle Collection</span>
+            <h1 class="hero-title">Mode &amp; <span>Style</span><br>Sans Frontières</h1>
+            <p class="hero-subtitle">Vêtements, chaussures et accessoires des meilleures marques internationales.</p>
+            <div class="hero-cta-group">
+              <a href="pages/category.html?cat=mode" class="btn btn-primary btn-lg">Voir la collection</a>
+              <a href="pages/shop.html" class="btn btn-secondary btn-lg">Explorer tout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-slide hero-slide-3">
+        <div class="container">
+          <div class="hero-content">
+            <span class="hero-badge">🌐 Dropshipping</span>
+            <h1 class="hero-title">Importez &amp; <span>Revendez</span><br>Facilement</h1>
+            <p class="hero-subtitle">Partenaire dropshipping: accédez à des milliers de produits sans stock. Livraison mondiale.</p>
+            <div class="hero-cta-group">
+              <a href="pages/shop.html?dropship=true" class="btn btn-primary btn-lg">Produits Drop</a>
+              <a href="pages/contact.html" class="btn btn-secondary btn-lg">Devenir partenaire</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="heroPrev" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;z-index:10">‹</button>
+      <button id="heroNext" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;z-index:10">›</button>
+      <div class="hero-controls">
+        <button class="hero-dot active"></button>
+        <button class="hero-dot"></button>
+        <button class="hero-dot"></button>
+      </div>
+    </section>
+
+    <!-- ── TRUST BADGES ── -->
+    <section class="section-sm" style="background:#fff;border-bottom:1px solid #e2e8f0">
+      <div class="container">
+        <div class="trust-grid">
+          <div class="trust-item">
+            <span class="trust-icon">🚚</span>
+            <div class="trust-title">Livraison Rapide</div>
+            <div class="trust-desc">Haiti &amp; République Dominicaine</div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🔒</span>
+            <div class="trust-title">Paiement Sécurisé</div>
+            <div class="trust-desc">PayPal &amp; NatCash certifiés</div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">↩️</span>
+            <div class="trust-title">Retour 30 Jours</div>
+            <div class="trust-desc">Remboursement garanti</div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🎧</span>
+            <div class="trust-title">Support 24/7</div>
+            <div class="trust-desc">Équipe dédiée à votre service</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CATEGORIES ── -->
+    <section class="section container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Explorer par <span>Catégorie</span></h2>
+          <p class="section-subtitle">Des milliers de produits dans chaque catégorie</p>
+        </div>
+        <a href="pages/shop.html" class="section-link">Tout voir →</a>
+      </div>
+      <div class="category-grid" id="categoriesGrid"></div>
+    </section>
+
+    <!-- ── PROMO BANNERS ── -->
+    <section class="section-sm container">
+      <div class="promo-grid">
+        <div class="promo-card" style="background:linear-gradient(135deg,#0a2342,#1565c0);min-height:260px" onclick="location.href='pages/category.html?cat=electronique'">
+          <div class="promo-card-content">
+            <div class="promo-card-label">jusqu'à -40%</div>
+            <div class="promo-card-title">Électronique &amp; Tech</div>
+            <div class="promo-card-cta">Acheter maintenant →</div>
+          </div>
+        </div>
+        <div class="promo-card" style="background:linear-gradient(135deg,#6a1b9a,#ad1457)" onclick="location.href='pages/category.html?cat=mode'">
+          <div class="promo-card-content">
+            <div class="promo-card-label">Nouvelle collection</div>
+            <div class="promo-card-title">Mode &amp; Fashion</div>
+            <div class="promo-card-cta">Découvrir →</div>
+          </div>
+        </div>
+        <div class="promo-card" style="background:linear-gradient(135deg,#1b5e20,#2e7d32)" onclick="location.href='pages/category.html?cat=beaute'">
+          <div class="promo-card-content">
+            <div class="promo-card-label">Premium</div>
+            <div class="promo-card-title">Beauté &amp; Santé</div>
+            <div class="promo-card-cta">Explorer →</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DEALS OF THE DAY ── -->
+    <section class="section container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🔥 Offres du <span>Jour</span></h2>
+          <p class="section-subtitle">Des prix exceptionnels pour une durée limitée</p>
+        </div>
+        <a href="pages/deals.html" class="section-link">Toutes les offres →</a>
+      </div>
+      <div class="deal-timer">
+        <span class="deal-timer-label">⏱️ Fin dans:</span>
+        <div class="deal-timer-parts" id="dealTimer">
+          <div class="deal-timer-unit"><span class="deal-timer-num" data-h>00</span><span class="deal-timer-label-sm">Heures</span></div>
+          <span class="deal-timer-sep">:</span>
+          <div class="deal-timer-unit"><span class="deal-timer-num" data-m>00</span><span class="deal-timer-label-sm">Min</span></div>
+          <span class="deal-timer-sep">:</span>
+          <div class="deal-timer-unit"><span class="deal-timer-num" data-s>00</span><span class="deal-timer-label-sm">Sec</span></div>
+        </div>
+      </div>
+      <div class="product-grid" id="dealsGrid"></div>
+    </section>
+
+    <!-- ── FEATURED PRODUCTS ── -->
+    <section class="section" style="background:#fff;padding-top:48px;padding-bottom:48px">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">⭐ Produits en <span>Vedette</span></h2>
+            <p class="section-subtitle">Sélection premium par notre équipe</p>
+          </div>
+          <a href="pages/shop.html?filter=featured" class="section-link">Voir tout →</a>
+        </div>
+        <div class="product-grid" id="featuredGrid"></div>
+      </div>
+    </section>
+
+    <!-- ── HOT / TRENDING ── -->
+    <section class="section container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🔥 Tendances</h2>
+          <p class="section-subtitle">Les plus populaires cette semaine</p>
+        </div>
+        <a href="pages/shop.html?sort=reviews" class="section-link">Voir tout →</a>
+      </div>
+      <div class="product-grid" id="hotGrid"></div>
+    </section>
+
+    <!-- ── BRANDS ── -->
+    <section class="section-sm" style="background:#fff;padding:32px 0">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Nos <span>Marques</span></h2>
+        </div>
+        <div class="brands-grid">
+          <div class="brand-card">Apple</div>
+          <div class="brand-card">Samsung</div>
+          <div class="brand-card">Nike</div>
+          <div class="brand-card">Sony</div>
+          <div class="brand-card">LEGO</div>
+          <div class="brand-card">Luxe Beauty</div>
+          <div class="brand-card">Home Luxe</div>
+          <div class="brand-card">TechPro</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── NEW ARRIVALS ── -->
+    <section class="section container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🆕 Nouveautés</h2>
+          <p class="section-subtitle">Produits arrivés cette semaine</p>
+        </div>
+        <a href="pages/shop.html?sort=new" class="section-link">Voir tout →</a>
+      </div>
+      <div class="product-grid" id="newGrid"></div>
+    </section>
+
+    <!-- ── APP DOWNLOAD BANNER ── -->
+    <section class="section-sm container">
+      <div class="app-banner">
+        <div style="flex:1;min-width:240px">
+          <h3 style="font-family:var(--font-display);font-size:28px;color:#fff;margin-bottom:8px">Téléchargez l'App Jloodna</h3>
+          <p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:16px">Commandez encore plus facilement depuis votre smartphone. Offres exclusives app!</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="Toast.show('info','App Mobile','Bientôt disponible sur App Store et Play Store!')">📱 App Store</button>
+            <button class="btn btn-secondary" onclick="Toast.show('info','App Mobile','Bientôt disponible sur App Store et Play Store!')">🤖 Google Play</button>
+          </div>
+        </div>
+        <div class="app-qr">📱</div>
+      </div>
+    </section>
+
+    <!-- ── DROPSHIPPING SECTION ── -->
+    <section class="section" style="background:linear-gradient(135deg,#f5f5f0,#e8f0ff);padding:48px 0">
+      <div class="container">
+        <div style="display:grid;gap:32px;grid-template-columns:1fr;align-items:center" class="drop-grid">
+          <div>
+            <span class="hero-badge" style="background:#6a1b9a">🌐 Dropshipping</span>
+            <h2 class="section-title" style="margin-top:12px">Vendez Sans <span>Stock</span></h2>
+            <p style="font-size:15px;color:#4a5568;margin-bottom:24px;line-height:1.8">
+              Ajoutez des produits par lien depuis n'importe quelle source mondiale. Notre système gère la livraison, le suivi et le service client. Concentrez-vous sur la vente!
+            </p>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+              <div style="display:flex;gap:10px;align-items:center"><span style="font-size:20px">✅</span><span>Importation par lien URL en 1 clic</span></div>
+              <div style="display:flex;gap:10px;align-items:center"><span style="font-size:20px">✅</span><span>Synchronisation automatique des prix et stocks</span></div>
+              <div style="display:flex;gap:10px;align-items:center"><span style="font-size:20px">✅</span><span>Marges bénéficiaires configurables</span></div>
+              <div style="display:flex;gap:10px;align-items:center"><span style="font-size:20px">✅</span><span>Livraison internationale gérée</span></div>
+            </div>
+            <a href="pages/contact.html" class="btn btn-dark btn-lg">Devenir Partenaire →</a>
+          </div>
+          <div style="text-align:center;font-size:120px">🌐</div>
+        </div>
+      </div>
+    </section>
+    <style>.drop-grid{ grid-template-columns:1fr !important; } @media(min-width:768px){.drop-grid{grid-template-columns:1fr 1fr !important}}</style>
+
+    <!-- ── TESTIMONIALS ── -->
+    <section class="section container">
+      <div class="section-header text-center" style="flex-direction:column;align-items:center">
+        <h2 class="section-title">Ce que disent nos <span>Clients</span></h2>
+        <p class="section-subtitle">+10 000 clients satisfaits en Haiti et en RD</p>
+      </div>
+      <div style="display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+          <div style="color:#d4a017;font-size:18px;margin-bottom:10px">★★★★★</div>
+          <p style="font-size:14px;color:#4a5568;line-height:1.7;margin-bottom:16px">"Service excellent! Mon iPhone est arrivé en parfait état en 3 jours. Paiement NatCash très simple. Je recommande à 100%!"</p>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0a2342,#1565c0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">JR</div>
+            <div><div style="font-weight:700;font-size:14px">Jean-Robert M.</div><div style="font-size:12px;color:#9aa3b2">Port-au-Prince, Haiti</div></div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+          <div style="color:#d4a017;font-size:18px;margin-bottom:10px">★★★★★</div>
+          <p style="font-size:14px;color:#4a5568;line-height:1.7;margin-bottom:16px">"Los precios en DOP son muy convenientes. Compré una laptop y llegó en 4 días. El servicio de cliente es increíble. ¡Gracias Jloodna!"</p>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6a1b9a,#ad1457);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">MG</div>
+            <div><div style="font-weight:700;font-size:14px">Maria García</div><div style="font-size:12px;color:#9aa3b2">Santo Domingo, RD</div></div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+          <div style="color:#d4a017;font-size:18px;margin-bottom:10px">★★★★☆</div>
+          <p style="font-size:14px;color:#4a5568;line-height:1.7;margin-bottom:16px">"Boutique sérieuse, produits conformes à la description. J'utilise le dropshipping pour ma boutique et c'est très efficace. Bravo l'équipe!"</p>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1b5e20,#2e7d32);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">PC</div>
+            <div><div style="font-weight:700;font-size:14px">Pierre Célestin</div><div style="font-size:12px;color:#9aa3b2">Cap-Haïtien, Haiti</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer injection point -->
+  <div id="appFooter"></div>
+
+  <script src="frontend/assets/js/app.js"></script>
+  <script src="frontend/assets/js/products.js"></script>
+  <script src="frontend/assets/js/layout.js"></script>
+  <script src="frontend/assets/js/realtime.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Render categories
+      const cgEl = document.getElementById('categoriesGrid');
+      if (cgEl) {
+        cgEl.innerHTML = CATEGORIES.map(c => `
+          <a href="pages/category.html?cat=${c.slug}" class="category-card">
+            <div class="category-icon">${c.icon}</div>
+            <div class="category-name">${c.name}</div>
+            <div class="category-count">${Products.byCategory(c.slug).length} articles</div>
+          </a>`).join('');
+      }
+
+      // Render product grids
+      Products.renderGrid(Products.hot().slice(0, 6), 'dealsGrid');
+      Products.renderGrid(Products.featured().slice(0, 6), 'featuredGrid');
+      Products.renderGrid(Products.hot().slice(0, 6), 'hotGrid');
+      Products.renderGrid(Products.newest().slice(0, 6), 'newGrid');
+
+      // Deal countdown — end of day
+      const end = new Date(); end.setHours(23, 59, 59, 0);
+      Countdown.start(end, 'dealTimer');
+    });
+  </script>
+</body>
+</html>

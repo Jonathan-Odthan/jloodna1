@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <script src="https://www.paypal.com/sdk/js?client-id=AdI4wGqusD1U_r2ng3TxPlIUpNdHFN0CkoVc1bTtUuGumlKeItEm7kgy74gym9w-rPs4-D0lANzmZq5j&currency=USD"></script>
+  <style>
+    .checkout-layout { display:grid; gap:32px; grid-template-columns:1fr; }
+    @media(min-width:900px){ .checkout-layout{grid-template-columns:1fr 380px} }
+    .order-summary { background:#fff; border-radius:16px; padding:24px; border:1px solid #e2e8f0; height:fit-content; position:sticky; top:80px; }
+    .step-content { background:#fff; border-radius:16px; padding:28px; border:1px solid #e2e8f0; margin-bottom:20px; }
+    .payment-methods { display:grid; gap:12px; }
+    .payment-option { border:2px solid #e2e8f0; border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:12px; }
+    .payment-option.selected { border-color:#0a2342; background:#f0f4ff; }
+    .payment-option input[type=radio] { accent-color:#0a2342; width:18px; height:18px; }
+    .payment-icon-big { font-size:32px; }
+    .payment-info { flex:1; }
+    .payment-name { font-weight:700; font-size:15px; color:#0a2342; }
+    .payment-desc { font-size:12px; color:#9aa3b2; }
+    .order-item { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid #f0f0e8; }
+    .order-item:last-child { border:none; }
+    .order-img { width:56px; height:56px; border-radius:8px; object-fit:cover; background:#f5f5f0; flex-shrink:0; }
+    .shipping-options { display:flex; flex-direction:column; gap:10px; }
+    .shipping-option { border:2px solid #e2e8f0; border-radius:10px; padding:14px 16px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all .2s; }
+    .shipping-option.selected { border-color:#0a2342; background:#f0f4ff; }
+    .coupon-row { display:flex; gap:8px; }
+    .coupon-row input { flex:1; }
+    #paypalContainer { margin-top:16px; min-height:50px; }
+    #natcashPanel { background:#f0f4ff; border-radius:10px; padding:16px; margin-top:12px; display:none; }
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="shop.html">Boutique</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Checkout</span>
+  </div>
+  <h1 class="section-title" style="margin-bottom:24px">🛒 Finaliser la <span>Commande</span></h1>
+
+  <!-- Steps -->
+  <div class="checkout-steps">
+    <div class="checkout-step done" id="stepInfo">
+      <div class="step-num">✓</div>
+      <div style="display:flex;flex-direction:column"><span class="step-label">Informations</span></div>
+    </div>
+    <div class="checkout-step active" id="stepShip">
+      <div class="step-num">2</div>
+      <div style="display:flex;flex-direction:column"><span class="step-label">Livraison</span></div>
+    </div>
+    <div class="checkout-step" id="stepPay">
+      <div class="step-num">3</div>
+      <div style="display:flex;flex-direction:column"><span class="step-label">Paiement</span></div>
+    </div>
+    <div class="checkout-step" id="stepConfirm">
+      <div class="step-num">4</div>
+      <div style="display:flex;flex-direction:column"><span class="step-label">Confirmation</span></div>
+    </div>
+  </div>
+
+  <div class="checkout-layout">
+    <div id="checkoutMain">
+      <!-- STEP 1: Contact/Address -->
+      <div class="step-content" id="step1">
+        <h2 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:#0a2342;margin-bottom:20px">📍 Informations de Livraison</h2>
+        <div class="form-row form-row-2">
+          <div class="form-group"><label class="form-label">Prénom *</label><input type="text" id="shipFirst" class="form-control" placeholder="Jean" required></div>
+          <div class="form-group"><label class="form-label">Nom *</label><input type="text" id="shipLast" class="form-control" placeholder="Robert" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email *</label><input type="email" id="shipEmail" class="form-control" placeholder="vous@exemple.com" required></div>
+        <div class="form-group"><label class="form-label">Téléphone *</label><input type="tel" id="shipPhone" class="form-control" placeholder="+509 XXXX XXXX" required></div>
+        <div class="form-group"><label class="form-label">Adresse *</label><input type="text" id="shipAddr" class="form-control" placeholder="Rue, Numéro, Quartier" required></div>
+        <div class="form-row form-row-2">
+          <div class="form-group"><label class="form-label">Ville *</label><input type="text" id="shipCity" class="form-control" placeholder="Port-au-Prince" required></div>
+          <div class="form-group"><label class="form-label">Pays *</label>
+            <select id="shipCountry" class="form-control">
+              <option value="HT">🇭🇹 Haiti</option>
+              <option value="DO">🇩🇴 République Dominicaine</option>
+              <option value="US">🇺🇸 États-Unis</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="CA">🇨🇦 Canada</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes de livraison (optionnel)</label>
+          <textarea id="shipNotes" class="form-control" rows="2" placeholder="Instructions spéciales, point de repère…"></textarea>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="goStep2()">Continuer → Livraison</button>
+      </div>
+
+      <!-- STEP 2: Shipping Method -->
+      <div class="step-content" id="step2" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:#0a2342;margin-bottom:20px">🚚 Méthode de Livraison</h2>
+        <div class="shipping-options" id="shippingOptions"></div>
+        <div style="margin-top:20px;display:flex;gap:12px">
+          <button class="btn btn-outline" onclick="goBack(1)">← Retour</button>
+          <button class="btn btn-primary btn-lg" onclick="goStep3()">Continuer → Paiement</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Payment -->
+      <div class="step-content" id="step3" style="display:none">
+        <h2 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:#0a2342;margin-bottom:20px">💳 Mode de Paiement</h2>
+        <div class="payment-methods">
+          <label class="payment-option selected" onclick="selectPayment('paypal')">
+            <input type="radio" name="payment" value="paypal" checked>
+            <span class="payment-icon-big">🅿️</span>
+            <div class="payment-info">
+              <div class="payment-name">PayPal</div>
+              <div class="payment-desc">Paiement sécurisé via PayPal · Toutes cartes acceptées</div>
+            </div>
+            <span style="color:#2e7d32;font-weight:600;font-size:12px">Recommandé</span>
+          </label>
+          <label class="payment-option" onclick="selectPayment('natcash')">
+            <input type="radio" name="payment" value="natcash">
+            <span class="payment-icon-big">📱</span>
+            <div class="payment-info">
+              <div class="payment-name">NatCash</div>
+              <div class="payment-desc">Paiement mobile haïtien · Numéro: +509 40 89 40 38</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- PayPal Button -->
+        <div id="paypalContainer"></div>
+
+        <!-- NatCash Instructions -->
+        <div id="natcashPanel">
+          <h4 style="color:#0a2342;margin-bottom:8px">📱 Instructions NatCash</h4>
+          <p style="font-size:14px;color:#4a5568;line-height:1.7">
+            1. Ouvrez votre application NatCash<br>
+            2. Sélectionnez <strong>"Envoyer de l'argent"</strong><br>
+            3. Numéro destinataire: <strong style="color:#0a2342;font-size:16px">+509 40 89 40 38</strong><br>
+            4. Montant: <strong id="natcashAmount" style="color:#ff6f00"></strong><br>
+            5. Description: Votre numéro de commande <strong id="orderNum"></strong><br>
+            6. Envoyez une capture à notre WhatsApp pour confirmation
+          </p>
+          <button class="btn btn-primary btn-block" style="margin-top:12px" onclick="confirmNatcash()">✅ J'ai effectué le paiement</button>
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:12px">
+          <button class="btn btn-outline" onclick="goBack(2)">← Retour</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Confirmation -->
+      <div class="step-content" id="step4" style="display:none;text-align:center">
+        <div style="font-size:72px;margin-bottom:16px">🎉</div>
+        <h2 style="font-family:var(--font-display);font-size:28px;font-weight:700;color:#0a2342;margin-bottom:8px">Commande Confirmée!</h2>
+        <p style="color:#4a5568;margin-bottom:8px">Numéro de commande: <strong id="confirmOrderNum" style="color:#ff6f00"></strong></p>
+        <p style="color:#4a5568;margin-bottom:24px">Un email de confirmation a été envoyé à <strong id="confirmEmail"></strong></p>
+        <div style="background:#f0f9f0;border-radius:12px;padding:20px;margin-bottom:24px;text-align:left">
+          <h4 style="color:#2e7d32;margin-bottom:10px">📦 Prochaines étapes</h4>
+          <div style="font-size:14px;color:#4a5568;line-height:1.8">
+            <p>✅ Commande reçue et en traitement</p>
+            <p>📦 Préparation et expédition: 1–2 jours ouvrables</p>
+            <p>🚚 Livraison estimée: 2–5 jours ouvrables</p>
+            <p>📱 Suivi par SMS et email</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="orders.html" class="btn btn-primary">📋 Mes commandes</a>
+          <a href="../index.html" class="btn btn-outline">🏠 Retour à l'accueil</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div>
+      <div class="order-summary">
+        <h3 style="font-weight:700;font-size:16px;color:#0a2342;margin-bottom:16px;border-bottom:1px solid #e2e8f0;padding-bottom:12px">📋 Récapitulatif</h3>
+        <div id="orderItems"></div>
+
+        <div style="margin-top:16px">
+          <div class="coupon-row" style="margin-bottom:16px">
+            <input type="text" class="form-control" id="couponInput" placeholder="Code promo">
+            <button class="btn btn-outline" onclick="applyCoupon()">Appliquer</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:14px;color:#4a5568"><span>Sous-total</span><span id="summarySubtotal">G 0.00</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;color:#4a5568"><span>Livraison</span><span id="summaryShipping" style="color:#2e7d32">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;color:#c62828" id="discountRow" style="display:none!important"><span>Réduction</span><span id="summaryDiscount">-G 0.00</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;color:#0a2342;border-top:2px solid #e2e8f0;padding-top:10px;margin-top:4px"><span>Total</span><span id="summaryTotal">G 0.00</span></div>
+            <div style="font-size:11px;color:#9aa3b2;text-align:right" id="summaryDOP"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;background:#f0f9f0;border-radius:8px;padding:12px;font-size:12px;color:#2e7d32;display:flex;gap:6px;align-items:flex-start">
+          🔒 <span>Paiement 100% sécurisé. Vos données sont protégées par chiffrement SSL.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  let currentStep = 1;
+  let selectedShipping = null;
+  let selectedPayment = 'paypal';
+  let discount = 0;
+  let appliedCouponCode = 'JLOODNA10': 10, 'BIENVENUE5': 5, 'FREESHIP': 0}[appliedCouponCode] || 0   ;
+  const orderNum = 'JL-' + Date.now();
+
+  const SHIPPING_OPTIONS = [
+    { id: 'std', name: 'Standard Haiti', desc: '3–5 jours ouvrables', price: 500, icon: '📦' },
+    { id: 'exp', name: 'Express Haiti', desc: '1–2 jours ouvrables', price: 1200, icon: '⚡' },
+    { id: 'rd', name: 'République Dominicaine', desc: '4–7 jours', price: 1800, icon: '🇩🇴' },
+    { id: 'intl', name: 'International', desc: '7–15 jours · DHL/FedEx', price: 4500, icon: '🌐' },
+  ];
+
+  function renderOrderItems() {
+    const el = document.getElementById('orderItems');
+    if (!State.cart.length) { el.innerHTML = '<div class="empty-state">Panier vide</div>'; return; }
+    el.innerHTML = State.cart.map(item => `
+      <div class="order-item">
+        <img class="order-img" src="${item.image||'../frontend/assets/images/placeholder.svg'}" alt="${item.title}" onerror="this.src='../frontend/assets/images/placeholder.svg'">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#1a1a2e">${item.title}</div>
+          ${item.variant ? `<div style="font-size:11px;color:#9aa3b2">${item.variant}</div>` : ''}
+          <div style="font-size:12px;color:#9aa3b2">Qté: ${item.qty}</div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:#0a2342">${Currency.format(item.price * item.qty)}</div>
+      </div>`).join('');
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const sub = Cart.total();
+    const ship = selectedShipping ? selectedShipping.price : 0;
+    const total = sub + ship - discount;
+    document.getElementById('summarySubtotal').textContent = Currency.format(sub);
+    document.getElementById('summaryShipping').textContent = ship ? Currency.format(ship) : (currentStep < 2 ? '—' : 'À calculer');
+    document.getElementById('summaryTotal').textContent = Currency.format(total);
+    document.getElementById('summaryDOP').textContent = '≈ ' + Currency.format(total, 'DOP');
+    if (discount > 0) {
+      document.getElementById('discountRow').style.display = 'flex';
+      document.getElementById('summaryDiscount').textContent = '-' + Currency.format(discount);
+    }
+    document.getElementById('natcashAmount').textContent = Currency.format(total);
+    document.getElementById('orderNum').textContent = orderNum;
+  }
+
+  function renderShipping() {
+    document.getElementById('shippingOptions').innerHTML = SHIPPING_OPTIONS.map((s, i) => `
+      <div class="shipping-option ${i===0?'selected':''}" onclick="selectShipping(this,'${s.id}')">
+        <input type="radio" name="shipping" ${i===0?'checked':''}>
+        <span style="font-size:24px">${s.icon}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px;color:#0a2342">${s.name}</div>
+          <div style="font-size:12px;color:#9aa3b2">${s.desc}</div>
+        </div>
+        <div style="font-weight:700;color:#ff6f00">${s.price === 0 ? '<span style="color:#2e7d32">Gratuit</span>' : Currency.format(s.price)}</div>
+      </div>`).join('');
+    selectedShipping = SHIPPING_OPTIONS[0];
+    updateSummary();
+  }
+
+  function selectShipping(el, id) {
+    document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+    selectedShipping = SHIPPING_OPTIONS.find(s => s.id === id);
+    updateSummary();
+  }
+
+  function selectPayment(method) {
+    selectedPayment = method;
+    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    document.getElementById('paypalContainer').style.display = method === 'paypal' ? 'block' : 'none';
+    document.getElementById('natcashPanel').style.display = method === 'natcash' ? 'block' : 'none';
+    if (method === 'paypal') initPayPal();
+  }
+
+  function goStep2() {
+    const fields = ['shipFirst','shipLast','shipEmail','shipPhone','shipAddr','shipCity'];
+    let valid = true;
+    fields.forEach(id => {
+      if (!document.getElementById(id).value.trim()) {
+        document.getElementById(id).classList.add('error');
+        valid = false;
+      } else document.getElementById(id).classList.remove('error');
+    });
+    if (!valid) { Toast.show('warning','Champs manquants','Veuillez remplir tous les champs obligatoires.'); return; }
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    renderShipping();
+    setStepActive(2);
+  }
+
+  function goStep3() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'block';
+    setStepActive(3);
+    initPayPal();
+    updateSummary();
+  }
+
+  function goBack(to) {
+    document.querySelectorAll('[id^=step]').forEach(s => s.style.display = 'none');
+    document.getElementById('step' + to).style.display = 'block';
+    setStepActive(to);
+  }
+
+  function setStepActive(n) {
+    currentStep = n;
+    ['stepInfo','stepShip','stepPay','stepConfirm'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.classList.remove('active','done');
+      if (i + 1 < n) el.classList.add('done'), el.querySelector('.step-num').textContent = '✓';
+      else if (i + 1 === n) el.classList.add('active');
+    });
+  }
+
+  async function showConfirmation(paymentMethod) {
+    const address = {
+      name: `${document.getElementById('shipFirst').value} ${document.getElementById('shipLast').value}`,
+      email: document.getElementById('shipEmail').value,
+      phone: document.getElementById('shipPhone').value,
+      address: document.getElementById('shipAddr').value,
+      city: document.getElementById('shipCity').value,
+    };
+    const token = sessionStorage.getItem('jl_token');
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      credentials: 'include',
+      body: JSON.stringify({ items: State.cart, address, shipping: selectedShipping, payment: paymentMethod.toLowerCase(), coupon: appliedCouponCode ? { code: appliedCouponCode } : null, currency: 'HTG' }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      Toast.show('error', 'Commande impossible', data.error || 'Veuillez réessayer.');
+      return;
+    }
+    const savedOrder = data.order;
+    const orders = JSON.parse(localStorage.getItem('jl_orders') || '[]');
+    orders.unshift({ ...savedOrder, date: savedOrder.createdAt });
+    localStorage.setItem('jl_orders', JSON.stringify(orders));
+
+    // Clear cart
+    State.cart = [];
+    State.saveCart();
+
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step4').style.display = 'block';
+    document.getElementById('confirmOrderNum').textContent = data.orderId;
+    document.getElementById('confirmEmail').textContent = document.getElementById('shipEmail').value;
+    setStepActive(4);
+
+    Notifs.add({ title: '✅ Commande confirmée', message: `Commande ${data.orderId} passée avec succès!` });
+    Cart.updateUI();
+  }
+
+  function confirmNatcash() {
+    Toast.show('success', '📱 Paiement enregistré', 'Nous vérifions votre paiement NatCash. Vous serez notifié.');
+    setTimeout(() => showConfirmation('NatCash'), 1500);
+  }
+
+  async function applyCoupon() {
+    const code = document.getElementById('couponInput').value.trim().toUpperCase();
+    try {
+      const response = await fetch('/api/coupons/validate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, orderTotal: Cart.total() }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Coupon invalide.');
+      appliedCouponCode = data.coupon.code;
+      discount = data.discount;
+      Toast.show('success', '🎉 Coupon appliqué!', data.message);
+      updateSummary();
+    } catch (err) {
+      appliedCouponCode = '';
+      discount = 0;
+      Toast.show('error', '❌ Code invalide', err.message);
+      updateSummary();
+    }
+  }
+
+  function initPayPal() {
+    const container = document.getElementById('paypalContainer');
+    if (!container || !window.paypal || container.querySelector('iframe')) return;
+    const totalHTG = Cart.total() + (selectedShipping?.price || 0) - discount;
+    const totalUSD = (totalHTG / 133).toFixed(2); // Approximate HTG to USD
+
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' },
+      createOrder: (data, actions) => actions.order.create({
+        purchase_units: [{
+          amount: { value: totalUSD, currency_code: 'USD' },
+          description: `Jloodna Order ${orderNum}`
+        }]
+      }),
+      onApprove: (data, actions) => actions.order.capture().then(details => {
+        Toast.show('success', '✅ Paiement accepté!', `PayPal: ${details.id}`);
+        setTimeout(() => showConfirmation('PayPal'), 800);
+      }),
+      onError: err => {
+        console.error(err);
+        Toast.show('error', 'Erreur PayPal', 'Le paiement a échoué. Réessayez.');
+      }
+    }).render('#paypalContainer');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!State.cart.length) {
+      Toast.show('warning', 'Panier vide', 'Ajoutez des produits avant de passer commande.');
+      setTimeout(() => window.location.href = 'shop.html', 1500);
+      return;
+    }
+    renderOrderItems();
+    const user = State.user;
+    if (user) {
+      if (document.getElementById('shipFirst')) document.getElementById('shipFirst').value = user.name?.split(' ')[0] || '';
+      if (document.getElementById('shipLast')) document.getElementById('shipLast').value = user.name?.split(' ')[1] || '';
+      if (document.getElementById('shipEmail')) document.getElementById('shipEmail').value = user.email || '';
+    }
+  });
+</script>
+</body>
+</html>

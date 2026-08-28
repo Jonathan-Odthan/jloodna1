@@ -1,0 +1,50 @@
+{
+  "name": "jloodna-global-trading",
+  "version": "1.0.0",
+  "description": "Marketplace e-commerce Jloodna Global Trading — Haiti & République Dominicaine",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "node tests/smoke.js",
+    "lint": "eslint backend/**/*.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "marketplace",
+    "haiti",
+    "htg",
+    "jloodna",
+    "dropshipping"
+  ],
+  "author": "Jloodna Global Trading <contact@jloodna.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.13",
+    "pg": "^8.23.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.3.0",
+    "nodemon": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jloodna/global-trading.git"
+  }
+}

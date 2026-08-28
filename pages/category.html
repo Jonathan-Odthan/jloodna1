@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Catégorie — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .cat-hero{padding:40px 0;background:linear-gradient(135deg,#0a2342,#1565c0);color:#fff;margin-bottom:32px}
+    .cat-icon-big{font-size:64px;margin-bottom:12px}
+    .subcats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+    .subcat-btn{padding:8px 18px;border-radius:30px;border:2px solid #e2e8f0;background:#fff;font-size:13px;font-weight:600;color:#4a5568;cursor:pointer;transition:all .15s}
+    .subcat-btn.active,.subcat-btn:hover{background:#0a2342;color:#fff;border-color:#0a2342}
+    .shop-layout{display:grid;gap:24px;grid-template-columns:1fr}
+    @media(min-width:900px){.shop-layout{grid-template-columns:240px 1fr}}
+    .filter-sidebar{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px;height:fit-content;position:sticky;top:80px}
+    .sort-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;padding:12px 16px;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:16px}
+    .pagination{display:flex;gap:6px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+    .page-btn{width:38px;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#0a2342;transition:all .15s}
+    .page-btn.active,.page-btn:hover{background:#0a2342;color:#fff;border-color:#0a2342}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+
+<!-- Category Hero -->
+<div class="cat-hero">
+  <div class="container" style="text-align:center">
+    <div class="cat-icon-big" id="catIconBig">📦</div>
+    <h1 style="font-family:var(--font-display);font-size:clamp(24px,4vw,42px);font-weight:700;margin-bottom:8px" id="catTitle">Catégorie</h1>
+    <p style="opacity:.8;font-size:15px" id="catDesc">Découvrez notre sélection</p>
+    <div style="margin-top:16px;font-size:13px;opacity:.7" id="catMeta"></div>
+  </div>
+</div>
+
+<main class="container">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb" style="margin-bottom:16px">
+    <a href="../index.html">Accueil</a><span class="breadcrumb-sep">›</span>
+    <a href="shop.html">Boutique</a><span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current" id="catBreadcrumb">Catégorie</span>
+  </div>
+
+  <!-- Subcategories -->
+  <div class="subcats" id="subcatsList"></div>
+
+  <div class="shop-layout">
+    <!-- Filters -->
+    <aside class="filter-sidebar">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-weight:700;color:#0a2342;font-size:14px">🔽 Filtres</span>
+        <button onclick="clearFilters()" style="font-size:12px;color:#1565c0;background:none;border:none;cursor:pointer">Effacer</button>
+      </div>
+      <div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0">
+        <div style="font-weight:700;font-size:13px;color:#0a2342;margin-bottom:10px">💰 Prix (HTG)</div>
+        <input type="range" id="maxPrice" min="0" max="200000" step="1000" value="200000"
+          oninput="document.getElementById('maxPriceLbl').textContent='G '+Number(this.value).toLocaleString()"
+          style="width:100%;accent-color:#0a2342">
+        <div style="font-size:12px;color:#9aa3b2;margin-top:4px">Jusqu'à <strong id="maxPriceLbl">G 200 000</strong></div>
+      </div>
+      <div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0">
+        <div style="font-weight:700;font-size:13px;color:#0a2342;margin-bottom:10px">⭐ Note</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="rat" value="4" style="accent-color:#0a2342"> ★★★★☆ et +</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="rat" value="3" style="accent-color:#0a2342"> ★★★☆☆ et +</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="rat" value="0" checked style="accent-color:#0a2342"> Toutes</label>
+        </div>
+      </div>
+      <div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0">
+        <div style="font-weight:700;font-size:13px;color:#0a2342;margin-bottom:10px">📦 Disponibilité</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:6px"><input type="checkbox" id="inStockF" style="accent-color:#0a2342"> En stock seulement</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="promoF" style="accent-color:#0a2342"> En promotion</label>
+      </div>
+      <button onclick="applyFilters()" class="btn btn-primary btn-block">Appliquer</button>
+    </aside>
+
+    <!-- Products -->
+    <div>
+      <div class="sort-bar">
+        <span style="font-size:13px;color:#4a5568" id="resultCount">Chargement…</span>
+        <select id="sortSel" onchange="applyFilters()" style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#0a2342;background:#fff;margin-left:auto">
+          <option value="">Pertinence</option>
+          <option value="price_asc">Prix ↑</option>
+          <option value="price_desc">Prix ↓</option>
+          <option value="rating">Meilleures notes</option>
+          <option value="reviews">Popularité</option>
+        </select>
+      </div>
+      <div class="product-grid" id="catGrid"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- Related Categories -->
+  <div style="margin-top:48px;margin-bottom:32px">
+    <h2 class="section-title" style="margin-bottom:20px">Explorer d'autres <span>catégories</span></h2>
+    <div class="category-grid" id="relatedCats"></div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+<script>
+  const CAT_META = {
+    electronique: { icon:'📱', title:'Électronique & Tech', desc:'Smartphones, ordinateurs, accessoires et plus encore', subs:['Smartphones','Tablettes','Ordinateurs','TV & Audio','Accessoires','Gaming'] },
+    mode:         { icon:'👗', title:'Mode & Vêtements',   desc:'Les dernières tendances pour homme, femme et enfant',  subs:['Robes','T-shirts','Pantalons','Chaussures','Accessoires','Sport'] },
+    maison:       { icon:'🏠', title:'Maison & Jardin',    desc:'Tout pour décorer et équiper votre espace de vie',     subs:['Meubles','Décoration','Cuisine','Jardin','Literie','Rangement'] },
+    beaute:       { icon:'💄', title:'Beauté & Santé',     desc:'Cosmétiques, soins et bien-être premium',              subs:['Maquillage','Soins visage','Parfums','Cheveux','Santé','Bio'] },
+    sports:       { icon:'⚽', title:'Sports & Fitness',   desc:'Équipements sportifs et vêtements de performance',     subs:['Football','Basketball','Running','Natation','Fitness','Vélo'] },
+    jouets:       { icon:'🧸', title:'Enfants & Jouets',   desc:'Jouets éducatifs et divertissement pour enfants',      subs:['LEGO','Poupées','Jeux de société','Éducatif','Plein air','Bébé'] },
+    informatique: { icon:'💻', title:'Informatique',       desc:'Matériel informatique, logiciels et accessoires',      subs:['Laptops','PC Bureau','Imprimantes','Stockage','Réseaux','Écrans'] },
+    auto:         { icon:'🚗', title:'Automobile',         desc:'Accessoires et équipements pour votre véhicule',       subs:['Entretien','Accessoires','Électronique auto','Pneus','GPS'] },
+    alimentation: { icon:'🛒', title:'Alimentation',       desc:'Produits alimentaires et boissons sélectionnés',       subs:['Épicerie','Boissons','Bio','Snacks','Condiments'] },
+    bijoux:       { icon:'💎', title:'Bijoux & Montres',   desc:'Bijoux, montres et accessoires de mode premium',       subs:['Colliers','Bracelets','Bagues','Montres','Boucles'] },
+    livres:       { icon:'📚', title:'Livres & Médias',    desc:'Livres, musique, films et contenus culturels',         subs:['Romans','Éducation','Jeunesse','BD','Musique','Films'] },
+    dropshipping: { icon:'🌐', title:'Dropshipping',       desc:'Produits importés directement de nos partenaires',     subs:['Amazon','AliExpress','Alibaba','USA','Chine','Europe'] },
+  };
+
+  let allProds = [], page = 1;
+  const PER = 12;
+  let currentCat = '';
+
+  function initPage() {
+    currentCat = getParam('cat') || 'electronique';
+    const meta = CAT_META[currentCat] || { icon:'📦', title:'Catégorie', desc:'', subs:[] };
+
+    document.title = `${meta.title} — Jloodna`;
+    document.getElementById('catIconBig').textContent = meta.icon;
+    document.getElementById('catTitle').textContent = meta.title;
+    document.getElementById('catDesc').textContent = meta.desc;
+    document.getElementById('catBreadcrumb').textContent = meta.title;
+
+    // Subcategories chips
+    document.getElementById('subcatsList').innerHTML = ['Tous', ...meta.subs].map((s, i) =>
+      `<button class="subcat-btn ${i===0?'active':''}" onclick="filterSub(this,'${s}')">${s}</button>`
+    ).join('');
+
+    // Related categories
+    const relEl = document.getElementById('relatedCats');
+    relEl.innerHTML = CATEGORIES.filter(c => c.slug !== currentCat).slice(0, 8).map(c =>
+      `<a href="category.html?cat=${c.slug}" class="category-card">
+         <div class="category-icon">${c.icon}</div>
+         <div class="category-name">${c.name}</div>
+         <div class="category-count">${Products.byCategory(c.slug).length} articles</div>
+       </a>`).join('');
+
+    applyFilters();
+  }
+
+  function filterSub(btn, sub) {
+    document.querySelectorAll('.subcat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const maxP   = parseInt(document.getElementById('maxPrice').value) || 999999;
+    const rating = parseFloat(document.querySelector('input[name=rat]:checked')?.value || 0);
+    const inStock= document.getElementById('inStockF').checked;
+    const promo  = document.getElementById('promoF').checked;
+    const sort   = document.getElementById('sortSel').value;
+
+    let res = Products.byCategory(currentCat);
+    if (maxP < 200000) res = res.filter(p => p.price <= maxP);
+    if (rating)        res = res.filter(p => p.rating >= rating);
+    if (inStock)       res = res.filter(p => p.stock > 0);
+    if (promo)         res = res.filter(p => p.priceOld && p.priceOld > p.price);
+    if (sort === 'price_asc')  res.sort((a,b) => a.price - b.price);
+    if (sort === 'price_desc') res.sort((a,b) => b.price - a.price);
+    if (sort === 'rating')     res.sort((a,b) => b.rating - a.rating);
+    if (sort === 'reviews')    res.sort((a,b) => b.reviews - a.reviews);
+
+    allProds = res;
+    page = 1;
+    document.getElementById('catMeta').textContent = `${res.length} produit(s) disponible(s)`;
+    renderPage();
+  }
+
+  function renderPage() {
+    const slice = allProds.slice((page-1)*PER, page*PER);
+    document.getElementById('resultCount').textContent = `${allProds.length} produit(s)`;
+    Products.renderGrid(slice, 'catGrid');
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const pages = Math.ceil(allProds.length / PER);
+    const el = document.getElementById('pagination');
+    if (pages <= 1) { el.innerHTML = ''; return; }
+    el.innerHTML = Array.from({length:pages},(_,i) =>
+      `<button class="page-btn ${i+1===page?'active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('');
+  }
+
+  function goPage(p) { page=p; renderPage(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+  function clearFilters() {
+    document.getElementById('maxPrice').value = 200000;
+    document.getElementById('maxPriceLbl').textContent = 'G 200 000';
+    document.getElementById('inStockF').checked = false;
+    document.getElementById('promoF').checked = false;
+    document.querySelector('input[name=rat][value="0"]').checked = true;
+    applyFilters();
+  }
+
+  document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>

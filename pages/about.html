@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>À propos — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .about-hero{background:linear-gradient(135deg,#0a2342 0%,#1565c0 100%);padding:80px 24px;text-align:center;color:#fff}
+    .values-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:32px}
+    .value-card{background:#fff;border-radius:16px;padding:28px;text-align:center;border:1px solid #e2e8f0;transition:all .2s}
+    .value-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-4px)}
+    .value-icon{font-size:48px;margin-bottom:14px}
+    .team-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+    .team-card{background:#fff;border-radius:16px;padding:24px;text-align:center;border:1px solid #e2e8f0}
+    .team-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#0a2342,#1565c0);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;font-weight:700}
+    .stat-band{background:linear-gradient(135deg,#0a2342,#1565c0);border-radius:20px;padding:40px 32px;margin:40px 0}
+    .stat-band-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;text-align:center}
+    @media(min-width:768px){.stat-band-grid{grid-template-columns:repeat(4,1fr)}}
+    .stat-band-num{font-size:36px;font-weight:900;color:#fff}
+    .stat-band-label{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px}
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+
+<div class="about-hero">
+  <h1 style="font-family:var(--font-display);font-size:clamp(28px,5vw,52px);font-weight:700;margin-bottom:12px">À propos de <span style="color:#ffa726">Jloodna</span></h1>
+  <p style="font-size:17px;opacity:.85;max-width:600px;margin:0 auto">La marketplace de confiance pour Haiti et la République Dominicaine — commerce global, service local.</p>
+</div>
+
+<main class="container section">
+  <!-- Mission -->
+  <div style="max-width:800px;margin:0 auto;text-align:center;margin-bottom:48px">
+    <h2 class="section-title" style="margin-bottom:16px">Notre <span>Mission</span></h2>
+    <p style="font-size:16px;color:#4a5568;line-height:1.9">Jloodna Global Trading est née d'une vision simple: rendre le commerce en ligne accessible, transparent et fiable pour tous les consommateurs haïtiens et dominicains. Nous croyons que chaque personne mérite d'accéder aux meilleurs produits du monde, dans sa devise locale, avec un service client humain et efficace.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-band">
+    <div class="stat-band-grid">
+      <div><div class="stat-band-num">10K+</div><div class="stat-band-label">Clients satisfaits</div></div>
+      <div><div class="stat-band-num">500+</div><div class="stat-band-label">Produits disponibles</div></div>
+      <div><div class="stat-band-num">2</div><div class="stat-band-label">Pays desservis</div></div>
+      <div><div class="stat-band-num">24/7</div><div class="stat-band-label">Support client</div></div>
+    </div>
+  </div>
+
+  <!-- Values -->
+  <div style="text-align:center;margin-bottom:32px">
+    <h2 class="section-title">Nos <span>Valeurs</span></h2>
+    <p class="section-subtitle">Ce qui nous guide chaque jour</p>
+  </div>
+  <div class="values-grid">
+    <div class="value-card"><div class="value-icon">🤝</div><h3 style="font-weight:700;color:#0a2342;margin-bottom:8px">Confiance</h3><p style="font-size:14px;color:#4a5568">Nous ne vendons que des produits authentiques, sourcés auprès de fournisseurs vérifiés.</p></div>
+    <div class="value-card"><div class="value-icon">🌐</div><h3 style="font-weight:700;color:#0a2342;margin-bottom:8px">Innovation</h3><p style="font-size:14px;color:#4a5568">Notre plateforme dropshipping permet d'importer des produits du monde entier en quelques clics.</p></div>
+    <div class="value-card"><div class="value-icon">🇭🇹</div><h3 style="font-weight:700;color:#0a2342;margin-bottom:8px">Local</h3><p style="font-size:14px;color:#4a5568">Paiements en HTG et DOP, support en créole, français et espagnol. Nous comprenons votre réalité.</p></div>
+    <div class="value-card"><div class="value-icon">⚡</div><h3 style="font-weight:700;color:#0a2342;margin-bottom:8px">Rapidité</h3><p style="font-size:14px;color:#4a5568">Livraison express disponible en Haiti. Réponse support en moins de 5 minutes via WhatsApp.</p></div>
+  </div>
+
+  <!-- Team -->
+  <div style="text-align:center;margin:48px 0 32px">
+    <h2 class="section-title">Notre <span>Équipe</span></h2>
+    <p class="section-subtitle">Les personnes derrière Jloodna</p>
+  </div>
+  <div class="team-grid">
+    <div class="team-card"><div class="team-avatar">JL</div><div style="font-weight:700;color:#0a2342">Jean Loodna</div><div style="font-size:13px;color:#ff6f00;margin:4px 0">Fondateur & CEO</div><div style="font-size:12px;color:#9aa3b2">Vision & Stratégie</div></div>
+    <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#6a1b9a,#ad1457)">OE</div><div style="font-weight:700;color:#0a2342">Odthane Empire</div><div style="font-size:13px;color:#ff6f00;margin:4px 0">Co-Fondateur & CTO</div><div style="font-size:12px;color:#9aa3b2">Tech & Opérations</div></div>
+    <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#1b5e20,#2e7d32)">SC</div><div style="font-weight:700;color:#0a2342">Support Client</div><div style="font-size:13px;color:#ff6f00;margin:4px 0">Équipe Support</div><div style="font-size:12px;color:#9aa3b2">24/7 · Haiti & RD</div></div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-radius:20px;padding:48px 32px;text-align:center;margin-top:48px">
+    <h2 style="font-family:var(--font-display);font-size:28px;font-weight:700;color:#0a2342;margin-bottom:12px">Rejoignez la communauté Jloodna</h2>
+    <p style="color:#4a5568;font-size:15px;margin-bottom:24px">Partenariat dropshipping, affiliation ou simple shopping — nous avons quelque chose pour vous.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="shop.html" class="btn btn-primary btn-lg">🛍️ Commencer les achats</a>
+      <a href="contact.html" class="btn btn-dark btn-lg">🌐 Devenir partenaire</a>
+    </div>
+  </div>
+</main>
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+</body>
+</html>

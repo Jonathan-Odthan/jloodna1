@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: jloodna-global-trading
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jloodna-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: NATCASH_PHONE
+        value: +50955561461
+      - key: NATCASH_MERCHANT_ID
+        sync: false
+
+databases:
+  - name: jloodna-db
+    plan: free

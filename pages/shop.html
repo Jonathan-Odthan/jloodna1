@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boutique — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    .shop-layout { display:grid; gap:24px; grid-template-columns:1fr; }
+    @media(min-width:900px){ .shop-layout{ grid-template-columns:260px 1fr; } }
+    .filter-sidebar { background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; height:fit-content; position:sticky; top:80px; }
+    .filter-section { margin-bottom:24px; border-bottom:1px solid #e2e8f0; padding-bottom:20px; }
+    .filter-section:last-child { border:none; margin:0; padding:0; }
+    .filter-title { font-weight:700; font-size:14px; color:#0a2342; margin-bottom:12px; display:flex; justify-content:space-between; cursor:pointer; }
+    .filter-list { display:flex; flex-direction:column; gap:8px; }
+    .filter-check { display:flex; align-items:center; gap:8px; font-size:13px; color:#4a5568; cursor:pointer; }
+    .filter-check input { accent-color:#0a2342; width:15px; height:15px; }
+    .price-inputs { display:flex; gap:8px; align-items:center; margin-top:8px; }
+    .price-inputs input { flex:1; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; }
+    .sort-bar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:#fff; padding:12px 16px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:20px; }
+    .sort-bar select { padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; color:#0a2342; background:#fff; cursor:pointer; }
+    .view-toggle { display:flex; gap:4px; margin-left:auto; }
+    .view-btn { padding:7px 10px; border:1px solid #e2e8f0; background:#fff; border-radius:6px; cursor:pointer; font-size:14px; transition:all .15s; }
+    .view-btn.active { background:#0a2342; color:#fff; border-color:#0a2342; }
+    .results-count { font-size:13px; color:#4a5568; }
+    #shopGrid.list-view { grid-template-columns:1fr !important; }
+    .mobile-filter-btn { display:none; }
+    @media(max-width:899px){ .mobile-filter-btn{display:flex} .filter-sidebar{display:none;position:fixed;inset:0;z-index:300;overflow-y:auto;border-radius:0} .filter-sidebar.open{display:block} }
+    .active-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .pagination { display:flex; gap:6px; justify-content:center; margin-top:32px; flex-wrap:wrap; }
+    .page-btn { width:38px; height:38px; border-radius:8px; border:1px solid #e2e8f0; background:#fff; font-size:13px; font-weight:600; cursor:pointer; color:#0a2342; transition:all .15s; }
+    .page-btn.active, .page-btn:hover { background:#0a2342; color:#fff; border-color:#0a2342; }
+  </style>
+</head>
+<body>
+<div id="appHeader"></div>
+
+<main class="container section">
+  <div class="breadcrumb">
+    <a href="../index.html">Accueil</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current" id="breadcrumbCurrent">Boutique</span>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <h1 class="section-title" id="shopTitle">Toute la <span>Boutique</span></h1>
+    <button class="btn btn-outline btn-sm mobile-filter-btn" id="mobileFilterBtn">🔽 Filtres</button>
+  </div>
+
+  <div class="active-filters" id="activeFilters"></div>
+
+  <div class="shop-layout">
+    <!-- Sidebar Filters -->
+    <aside class="filter-sidebar" id="filterSidebar">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-weight:700;font-size:15px;color:#0a2342">🔽 Filtres</span>
+        <button onclick="clearFilters()" style="font-size:12px;color:#1565c0;background:none;border:none;cursor:pointer">Effacer tout</button>
+        <button class="hide-desktop" onclick="document.getElementById('filterSidebar').classList.remove('open')" style="background:none;border:none;font-size:20px;cursor:pointer">✕</button>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">📂 Catégorie</div>
+        <div class="filter-list" id="catFilters"></div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">💰 Prix (HTG)</div>
+        <input type="range" id="maxPriceRange" min="0" max="200000" step="1000" value="200000" oninput="document.getElementById('maxPriceVal').textContent='G '+Number(this.value).toLocaleString()" style="width:100%;accent-color:#0a2342">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#9aa3b2;margin-top:4px">
+          <span>G 0</span><span>Jusqu'à <strong id="maxPriceVal">G 200 000</strong></span>
+        </div>
+        <button onclick="applyFilters()" class="btn btn-outline btn-sm" style="margin-top:10px;width:100%">Appliquer</button>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">⭐ Note minimale</div>
+        <div class="filter-list">
+          <label class="filter-check"><input type="radio" name="rating" value="4"> ★★★★☆ et plus</label>
+          <label class="filter-check"><input type="radio" name="rating" value="3"> ★★★☆☆ et plus</label>
+          <label class="filter-check"><input type="radio" name="rating" value="2"> ★★☆☆☆ et plus</label>
+          <label class="filter-check"><input type="radio" name="rating" value="0" checked> Tous</label>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">📦 Disponibilité</div>
+        <div class="filter-list">
+          <label class="filter-check"><input type="checkbox" id="inStockFilter"> En stock uniquement</label>
+          <label class="filter-check"><input type="checkbox" id="dropshipFilter"> Dropshipping</label>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">🏷️ Marque</div>
+        <div class="filter-list" id="brandFilters"></div>
+      </div>
+
+      <button onclick="applyFilters()" class="btn btn-primary btn-block">Appliquer les filtres</button>
+    </aside>
+
+    <!-- Products -->
+    <div>
+      <div class="sort-bar">
+        <span class="results-count" id="resultsCount">Chargement…</span>
+        <select id="sortSelect" onchange="applyFilters()">
+          <option value="">Trier par: Pertinence</option>
+          <option value="price_asc">Prix: Croissant</option>
+          <option value="price_desc">Prix: Décroissant</option>
+          <option value="rating">Meilleures notes</option>
+          <option value="reviews">Plus populaires</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grille">⊞</button>
+          <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="Liste">☰</button>
+        </div>
+      </div>
+
+      <div class="product-grid" id="shopGrid"></div>
+
+      <div class="pagination" id="pagination"></div>
+
+      <!-- Affiche tous les produits actifs -->
+<div data-jl-products></div>
+
+<!-- Filtre par catégorie, limite à 8 -->
+<div data-jl-products data-jl-category="electronique" data-jl-limit="8"></div>
+
+<!-- Produits avec le tag "featured" -->
+<div data-jl-products data-jl-tag="featured" data-jl-limit="4"></div>
+
+      
+    </div>
+  </div>
+  <script src="../frontend/assets/js/product-sync.js"></script>
+</main>
+
+<div id="appFooter"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script src="../frontend/assets/js/products.js"></script>
+<script src="../frontend/assets/js/layout.js"></script>
+  <script src="../frontend/assets/js/realtime.js"></script>
+<script>
+  let currentPage = 1;
+  const perPage = 12;
+  let filtered = [];
+
+  function initFilters() {
+    const cats = [...new Set(Products.all().map(p => p.category))];
+    document.getElementById('catFilters').innerHTML = cats.map(c => {
+      const cat = CATEGORIES.find(x => x.slug === c);
+      return `<label class="filter-check"><input type="checkbox" class="cat-filter" value="${c}"> ${cat?.icon || ''} ${cat?.name || c} (${Products.byCategory(c).length})</label>`;
+    }).join('');
+    const brands = [...new Set(Products.all().map(p => p.brand))];
+    document.getElementById('brandFilters').innerHTML = brands.map(b =>
+      `<label class="filter-check"><input type="checkbox" class="brand-filter" value="${b}"> ${b}</label>`).join('');
+  }
+
+  function applyFilters() {
+    const q = getParam('q') || '';
+    const urlCat = getParam('cat') || '';
+    const checkedCats = [...document.querySelectorAll('.cat-filter:checked')].map(c => c.value);
+    const cats = urlCat ? [urlCat] : checkedCats;
+    const maxPrice = parseInt(document.getElementById('maxPriceRange').value);
+    const rating = parseFloat(document.querySelector('input[name=rating]:checked')?.value || 0);
+    const inStock = document.getElementById('inStockFilter').checked;
+    const dropship = document.getElementById('dropshipFilter').checked;
+    const sort = document.getElementById('sortSelect').value;
+
+    filtered = Products.search(q, { minPrice: 0, maxPrice, rating, inStock, sort });
+    if (cats.length) filtered = filtered.filter(p => cats.includes(p.category));
+    if (dropship) filtered = filtered.filter(p => p.dropship);
+
+    currentPage = 1;
+    renderPage();
+    updateActiveFilters();
+
+    document.getElementById('filterSidebar').classList.remove('open');
+  }
+
+  function renderPage() {
+    const start = (currentPage - 1) * perPage;
+    const slice = filtered.slice(start, start + perPage);
+    Products.renderGrid(slice, 'shopGrid');
+    document.getElementById('resultsCount').textContent = `${filtered.length} résultat(s)`;
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const pages = Math.ceil(filtered.length / perPage);
+    const el = document.getElementById('pagination');
+    if (pages <= 1) { el.innerHTML = ''; return; }
+    let html = '';
+    for (let i = 1; i <= pages; i++) {
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    }
+    el.innerHTML = html;
+  }
+
+  function goPage(p) { currentPage = p; renderPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+  function setView(v) {
+    const grid = document.getElementById('shopGrid');
+    document.getElementById('gridViewBtn').classList.toggle('active', v === 'grid');
+    document.getElementById('listViewBtn').classList.toggle('active', v === 'list');
+    grid.classList.toggle('list-view', v === 'list');
+  }
+
+  function clearFilters() {
+    document.querySelectorAll('.cat-filter, .brand-filter').forEach(c => c.checked = false);
+    document.getElementById('maxPriceRange').value = 200000;
+    document.getElementById('maxPriceVal').textContent = 'G 200 000';
+    document.getElementById('inStockFilter').checked = false;
+    document.querySelector('input[name=rating][value="0"]').checked = true;
+    applyFilters();
+  }
+
+  function updateActiveFilters() {
+    const af = document.getElementById('activeFilters');
+    const chips = [];
+    const urlCat = getParam('cat');
+    if (urlCat) { const c = CATEGORIES.find(x => x.slug === urlCat); if (c) chips.push(`<span class="chip active">${c.icon} ${c.name}</span>`); }
+    af.innerHTML = chips.join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initFilters();
+    const urlCat = getParam('cat');
+    const urlQ = getParam('q');
+    if (urlCat) {
+      const cat = CATEGORIES.find(c => c.slug === urlCat);
+      if (cat) {
+        document.getElementById('shopTitle').innerHTML = `${cat.icon} <span>${cat.name}</span>`;
+        document.getElementById('breadcrumbCurrent').textContent = cat.name;
+      }
+    }
+    if (urlQ) document.getElementById('shopTitle').innerHTML = `Résultats pour <span>"${sanitize(urlQ)}"</span>`;
+    applyFilters();
+  });
+
+  document.getElementById('mobileFilterBtn')?.addEventListener('click', () => {
+    document.getElementById('filterSidebar').classList.add('open');
+  });
+</script>
+</body>
+</html>
