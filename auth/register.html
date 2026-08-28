@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    body { background:linear-gradient(135deg,#0a2342 0%,#1565c0 100%); min-height:100vh; display:flex; flex-direction:column; }
+    .auth-wrapper { flex:1; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .auth-card { background:#fff; border-radius:20px; box-shadow:0 24px 80px rgba(0,0,0,.3); width:100%; max-width:500px; padding:40px; }
+    .auth-logo { text-align:center; margin-bottom:24px; }
+    .strength-bar { height:4px; border-radius:2px; margin-top:6px; transition:all .3s; background:#e2e8f0; }
+    .strength-text { font-size:11px; margin-top:4px; }
+    .show-password { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:16px; color:#9aa3b2; }
+    .input-wrap { position:relative; }
+    .input-wrap .form-control { padding-right:40px; }
+  </style>
+</head>
+<body>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:26px;color:#0a2342">Jloodna</div>
+      <div style="font-size:11px;color:#ff6f00;letter-spacing:2px;text-transform:uppercase">Global Trading</div>
+    </div>
+    <h1 style="text-align:center;font-family:var(--font-display);font-size:24px;font-weight:700;color:#0a2342;margin-bottom:4px">Créer un compte 🎉</h1>
+    <p style="text-align:center;font-size:13px;color:#9aa3b2;margin-bottom:24px">Rejoignez +10 000 clients satisfaits</p>
+
+    <form id="registerForm" novalidate>
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label" for="firstName">Prénom</label>
+          <input type="text" id="firstName" class="form-control" placeholder="Jean" required autocomplete="given-name">
+          <div class="form-error" id="firstNameErr"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lastName">Nom</label>
+          <input type="text" id="lastName" class="form-control" placeholder="Robert" required autocomplete="family-name">
+          <div class="form-error" id="lastNameErr"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="regEmail">Adresse Email</label>
+        <input type="email" id="regEmail" class="form-control" placeholder="vous@exemple.com" required autocomplete="email">
+        <div class="form-error" id="regEmailErr"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="phone">Téléphone (optionnel)</label>
+        <input type="tel" id="phone" class="form-control" placeholder="+509 XXXX XXXX" autocomplete="tel">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="regPassword">Mot de passe</label>
+        <div class="input-wrap">
+          <input type="password" id="regPassword" class="form-control" placeholder="Minimum 8 caractères" required oninput="checkStrength(this.value)" autocomplete="new-password">
+          <button type="button" class="show-password" onclick="togglePass('regPassword',this)">👁️</button>
+        </div>
+        <div class="strength-bar" id="strengthBar"></div>
+        <div class="strength-text" id="strengthText"></div>
+        <div class="form-error" id="passErr"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">Confirmer le mot de passe</label>
+        <div class="input-wrap">
+          <input type="password" id="confirmPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+          <button type="button" class="show-password" onclick="togglePass('confirmPassword',this)">👁️</button>
+        </div>
+        <div class="form-error" id="confirmErr"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="acceptTerms" style="margin-top:2px;accent-color:#0a2342" required>
+          <span>J'accepte les <a href="../pages/terms.html" style="color:#1565c0">conditions d'utilisation</a> et la <a href="../pages/privacy.html" style="color:#1565c0">politique de confidentialité</a></span>
+        </label>
+        <div class="form-error" id="termsErr"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="newsletter" style="accent-color:#0a2342" checked>
+          <span>Recevoir les offres exclusives par email</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="regBtn">Créer mon compte</button>
+    </form>
+
+    <div style="text-align:center;margin-top:20px;font-size:13px;color:#9aa3b2">
+      Déjà un compte? <a href="login.html" style="color:#1565c0;font-weight:600">Se connecter</a>
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <a href="../index.html" style="font-size:13px;color:#9aa3b2">← Retour à la boutique</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script>
+  function togglePass(id, btn) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+    btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+  }
+
+  function checkStrength(val) {
+    const bar = document.getElementById('strengthBar');
+    const txt = document.getElementById('strengthText');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { color: '#c62828', label: 'Très faible', width: '25%' },
+      { color: '#f57f17', label: 'Faible', width: '50%' },
+      { color: '#1565c0', label: 'Moyen', width: '75%' },
+      { color: '#2e7d32', label: 'Fort', width: '100%' },
+    ];
+    const l = levels[Math.max(0, score - 1)] || levels[0];
+    bar.style.background = val ? l.color : '#e2e8f0';
+    bar.style.width = val ? l.width : '0';
+    txt.textContent = val ? l.label : '';
+    txt.style.color = l.color;
+  }
+
+  function clearErr(id) { document.getElementById(id).textContent = ''; }
+  function setErr(id, msg) { document.getElementById(id).textContent = msg; return false; }
+
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    let valid = true;
+    const first = document.getElementById('firstName').value.trim();
+    const last = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    const terms = document.getElementById('acceptTerms').checked;
+
+    ['firstNameErr','lastNameErr','regEmailErr','passErr','confirmErr','termsErr'].forEach(id => clearErr(id));
+
+    if (!first) { setErr('firstNameErr','Prénom requis.'); valid = false; }
+    if (!last) { setErr('lastNameErr','Nom requis.'); valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('regEmailErr','Email invalide.'); valid = false; }
+    if (pass.length < 8) { setErr('passErr','Minimum 8 caractères.'); valid = false; }
+    if (pass !== confirm) { setErr('confirmErr','Les mots de passe ne correspondent pas.'); valid = false; }
+    if (!terms) { setErr('termsErr','Vous devez accepter les conditions.'); valid = false; }
+
+    // Block admin emails
+    if (['jloodna@gmail.com','odthanempire@gmail.com'].includes(email.toLowerCase())) {
+      setErr('regEmailErr','Cet email n\'est pas disponible.'); valid = false;
+    }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('regBtn');
+    btn.innerHTML = '<span class="loader"></span> Création…'; btn.disabled = true;
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', body: JSON.stringify({ firstName: first, lastName: last, email, password: pass }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Création du compte impossible.');
+      sessionStorage.setItem('jl_user', JSON.stringify(data.user));
+      if (data.token) sessionStorage.setItem('jl_token', data.token);
+      Toast.show('success', '🎉 Compte créé!', `Bienvenue ${first}!`);
+      setTimeout(() => window.location.href = '../index.html', 1200);
+    } catch (err) {
+      setErr('regEmailErr', err.message);
+      btn.innerHTML = 'Créer mon compte'; btn.disabled = false;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => Toast.init());
+</script>
+</body>
+</html>

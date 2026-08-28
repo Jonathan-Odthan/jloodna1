@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Jloodna Global Trading</title>
+  <link rel="icon" href="../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../frontend/assets/css/variables.css">
+  <link rel="stylesheet" href="../frontend/assets/css/main.css">
+  <style>
+    body { background:linear-gradient(135deg,#0a2342 0%,#1565c0 100%); min-height:100vh; display:flex; flex-direction:column; }
+    .auth-wrapper { flex:1; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .auth-card { background:#fff; border-radius:20px; box-shadow:0 24px 80px rgba(0,0,0,.3); width:100%; max-width:460px; padding:40px; }
+    .auth-logo { text-align:center; margin-bottom:28px; }
+    .auth-logo .logo-name { font-size:28px; color:#0a2342; }
+    .auth-logo .logo-tagline { font-size:11px; color:#ff6f00; letter-spacing:2px; text-transform:uppercase; }
+    .auth-title { text-align:center; font-family:var(--font-display); font-size:24px; font-weight:700; color:#0a2342; margin-bottom:6px; }
+    .auth-sub { text-align:center; font-size:13px; color:#9aa3b2; margin-bottom:28px; }
+    .divider { display:flex; align-items:center; gap:12px; margin:20px 0; }
+    .divider span { font-size:12px; color:#9aa3b2; white-space:nowrap; }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:#e2e8f0; }
+    .social-btn { display:flex; align-items:center; justify-content:center; gap:8px; padding:11px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; font-weight:600; color:#1a1a2e; width:100%; transition:all .15s; cursor:pointer; background:#fff; }
+    .social-btn:hover { background:#f5f5f0; border-color:#cbd5e0; }
+    .auth-footer { text-align:center; margin-top:20px; font-size:13px; color:#9aa3b2; }
+    .auth-footer a { color:#1565c0; font-weight:600; }
+    .show-password { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:16px; color:#9aa3b2; }
+    .input-wrap { position:relative; }
+    .input-wrap .form-control { padding-right:40px; }
+    .rate-warn { background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:10px 14px; font-size:12px; color:#856404; display:none; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-name" style="font-family:var(--font-display);font-weight:700">Jloodna</div>
+      <div class="logo-tagline">Global Trading</div>
+    </div>
+    <h1 class="auth-title">Bon retour! 👋</h1>
+    <p class="auth-sub">Connectez-vous à votre compte pour continuer</p>
+
+    <div class="rate-warn" id="rateWarn">⚠️ Trop de tentatives. Veuillez patienter avant de réessayer.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+      <button class="social-btn" onclick="socialLogin('Google')">🌐 Google</button>
+      <button class="social-btn" onclick="socialLogin('Facebook')">📘 Facebook</button>
+    </div>
+    <div class="divider"><span>ou avec votre email</span></div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="loginEmail">Adresse Email</label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="vous@exemple.com" autocomplete="email" required>
+        <div class="form-error" id="emailError"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Mot de passe</label>
+        <div class="input-wrap">
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="show-password" onclick="togglePassword('loginPassword',this)">👁️</button>
+        </div>
+        <div class="form-error" id="passError"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="rememberMe" style="accent-color:#0a2342"> Se souvenir de moi
+        </label>
+        <a href="forgot.html" style="font-size:13px;color:#1565c0;font-weight:600">Mot de passe oublié?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">Se connecter</button>
+    </form>
+
+    <div class="auth-footer">
+      Pas encore de compte? <a href="register.html">Créer un compte</a>
+    </div>
+    <div class="auth-footer" style="margin-top:8px">
+      <a href="../index.html" style="color:#9aa3b2">← Retour à la boutique</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="../frontend/assets/js/app.js"></script>
+<script>
+  /* Rate limiting */
+  const RL = { attempts: 0, lastAttempt: 0, limit: 5, window: 300000 };
+
+  function checkRateLimit() {
+    const now = Date.now();
+    if (now - RL.lastAttempt > RL.window) { RL.attempts = 0; }
+    RL.attempts++;
+    RL.lastAttempt = now;
+    return RL.attempts <= RL.limit;
+  }
+
+  function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+
+    // Clear errors
+    document.getElementById('emailError').textContent = '';
+    document.getElementById('passError').textContent = '';
+
+    // Validation
+    if (!email) { document.getElementById('emailError').textContent = 'Email requis.'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('emailError').textContent = 'Email invalide.'; return; }
+    if (!password) { document.getElementById('passError').textContent = 'Mot de passe requis.'; return; }
+    if (password.length < 8) { document.getElementById('passError').textContent = 'Minimum 8 caractères.'; return; }
+
+    // Rate limit
+    if (!checkRateLimit()) { document.getElementById('rateWarn').style.display = 'block'; return; }
+
+    // Loading
+    btn.innerHTML = '<span class="loader"></span> Connexion…'; btn.disabled = true;
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Connexion impossible.');
+      sessionStorage.setItem('jl_user', JSON.stringify(data.user));
+      if (data.token) sessionStorage.setItem('jl_token', data.token);
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '../index.html';
+      Toast.show('success', '✅ Connecté!', `Bienvenue ${data.user.name || ''}!`);
+      setTimeout(() => window.location.href = redirect, 800);
+    } catch (err) {
+      document.getElementById('passError').textContent = err.message;
+      btn.innerHTML = 'Se connecter'; btn.disabled = false;
+    }
+  });
+
+  function socialLogin(provider) {
+    Toast.show('info', `${provider}`, `Connexion via ${provider} bientôt disponible`);
+  }
+
+  // Already logged in?
+  const existing = JSON.parse(sessionStorage.getItem('jl_user') || 'null');
+  if (existing) {
+    if (existing.role === 'admin') window.location.href = '../admin/pages/dashboard.html';
+    else window.location.href = '../index.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => Toast.init());
+</script>
+</body>
+</html>

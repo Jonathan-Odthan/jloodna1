@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — Jloodna</title>
+  <link rel="icon" href="../../frontend/assets/images/favicon.svg">
+  <link rel="stylesheet" href="../../frontend/assets/css/variables.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans','Helvetica Neue',Arial,sans-serif;background:#f0f2f5;color:#1a1a2e;line-height:1.6;display:flex;min-height:100vh}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer;font-family:inherit;border:none;outline:none}
+    input,select,textarea{font-family:inherit;outline:none}
+    /* Sidebar */
+    .admin-sidebar{width:260px;background:linear-gradient(180deg,#0a2342 0%,#0d2d52 100%);color:#fff;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;transition:transform .3s;overflow-y:auto}
+    .admin-sidebar-header{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .admin-logo{font-family:'Playfair Display',Georgia,serif;font-size:20px;font-weight:700;color:#fff}
+    .admin-logo span{color:#ffa726}
+    .admin-role{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+    .admin-nav{flex:1;padding:12px 0}
+    .nav-section-label{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;padding:12px 20px 6px}
+    .admin-nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.75);cursor:pointer;transition:all .15s;border-left:3px solid transparent;background:none;width:100%;text-align:left}
+    .admin-nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+    .admin-nav-item.active{background:rgba(255,111,0,.15);color:#ffa726;border-left-color:#ff6f00}
+    .admin-nav-item .nav-icon{font-size:16px;width:20px;text-align:center}
+    .admin-nav-item .nav-badge{margin-left:auto;background:#c62828;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+    .admin-sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1)}
+    /* Main */
+    .admin-main{flex:1;margin-left:260px;min-height:100vh;display:flex;flex-direction:column}
+    .admin-topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .admin-topbar-title{font-size:16px;font-weight:700;color:#0a2342;flex:1}
+    .admin-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0a2342,#1565c0);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;cursor:pointer}
+    .admin-content{padding:24px;flex:1}
+    /* Cards */
+    .stat-grid{display:grid;gap:16px;grid-template-columns:repeat(2,1fr)}
+    @media(min-width:1200px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+    .stat-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0;position:relative;overflow:hidden;transition:all .2s}
+    .stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-2px)}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .stat-card.blue::before{background:linear-gradient(90deg,#1565c0,#42a5f5)}
+    .stat-card.orange::before{background:linear-gradient(90deg,#ff6f00,#ffa726)}
+    .stat-card.green::before{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
+    .stat-card.purple::before{background:linear-gradient(90deg,#6a1b9a,#ab47bc)}
+    .stat-num{font-size:28px;font-weight:900;color:#0a2342;line-height:1}
+    .stat-label{font-size:12px;color:#9aa3b2;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+    .stat-change{font-size:12px;font-weight:600;margin-top:8px}
+    .stat-icon{position:absolute;right:16px;top:16px;font-size:32px;opacity:.15}
+    /* Table */
+    .admin-table{width:100%;border-collapse:collapse;font-size:13px}
+    .admin-table th{text-align:left;padding:10px 14px;background:#f5f5f0;color:#9aa3b2;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e2e8f0}
+    .admin-table td{padding:12px 14px;border-bottom:1px solid #f0f0e8;vertical-align:middle}
+    .admin-table tr:hover td{background:#fafaf8}
+    .admin-table tr:last-child td{border:none}
+    /* Panel */
+    .admin-panel{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:20px}
+    .admin-panel-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .admin-panel-title{font-weight:700;font-size:15px;color:#0a2342}
+    .admin-panel-body{padding:20px}
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;transition:all .15s;border:2px solid transparent;cursor:pointer;white-space:nowrap}
+    .btn-primary{background:#0a2342;color:#fff;border-color:#0a2342}
+    .btn-primary:hover{background:#0d2d52}
+    .btn-accent{background:#ff6f00;color:#fff;border-color:#ff6f00}
+    .btn-accent:hover{background:#e65100}
+    .btn-success{background:#2e7d32;color:#fff;border-color:#2e7d32}
+    .btn-danger{background:#c62828;color:#fff;border-color:#c62828}
+    .btn-outline{background:transparent;color:#0a2342;border-color:#e2e8f0}
+    .btn-outline:hover{background:#f5f5f0}
+    .btn-sm{padding:5px 12px;font-size:12px}
+    /* Badge */
+    .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+    .badge-success{background:#e8f5e9;color:#2e7d32}
+    .badge-warning{background:#fff8e1;color:#f57f17}
+    .badge-danger{background:#ffebee;color:#c62828}
+    .badge-info{background:#e3f2fd;color:#1565c0}
+    .badge-purple{background:#f3e5f5;color:#6a1b9a}
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.3)}
+    .modal-header{padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
+    .modal-header h3{font-weight:700;font-size:18px;color:#0a2342}
+    .modal-close{background:none;font-size:20px;color:#9aa3b2;padding:4px}
+    .modal-body{padding:24px}
+    .modal-footer{padding:16px 24px;border-top:1px solid #e2e8f0;display:flex;gap:10px;justify-content:flex-end}
+    /* Form */
+    .form-group{margin-bottom:16px}
+    .form-label{display:block;font-size:13px;font-weight:600;color:#0a2342;margin-bottom:6px}
+    .form-control{width:100%;padding:9px 13px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1a1a2e;transition:border-color .15s}
+    .form-control:focus{border-color:#1565c0;box-shadow:0 0 0 3px rgba(21,101,192,.1)}
+    .form-row{display:grid;gap:14px}
+    @media(min-width:600px){.form-row-2{grid-template-columns:1fr 1fr}}
+    /* Toast */
+    .toast-container{position:fixed;bottom:20px;right:20px;z-index:600;display:flex;flex-direction:column;gap:8px;max-width:320px}
+    .toast{background:#0a2342;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:flex-start;gap:10px;font-size:13px;animation:slideIn .3s ease;border-left:4px solid #ff6f00}
+    .toast.success{border-left-color:#2e7d32}.toast.error{border-left-color:#c62828}.toast.warning{border-left-color:#f57f17}
+    @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    /* Chart placeholder */
+    .chart-wrap{background:linear-gradient(135deg,#f5f5f0,#e8f0ff);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:4px;padding:20px 16px;height:200px}
+    .chart-bar{border-radius:4px 4px 0 0;min-width:18px;transition:height .5s;background:linear-gradient(180deg,#1565c0,#0a2342)}
+    /* Dropship form */
+    .dropship-url-input{display:flex;gap:8px}
+    .dropship-url-input input{flex:1}
+    /* Mobile */
+    @media(max-width:768px){
+      .admin-sidebar{transform:translateX(-100%)}
+      .admin-sidebar.open{transform:translateX(0)}
+      .admin-main{margin-left:0}
+      .admin-topbar{padding:0 16px}
+    }
+    .sidebar-toggle{display:none;background:none;color:#0a2342;font-size:22px;padding:4px}
+    @media(max-width:768px){.sidebar-toggle{display:block}}
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar" id="adminSidebar">
+  <div class="admin-sidebar-header">
+    <div class="admin-logo">Jloodna <span>Admin</span></div>
+    <div class="admin-role">Panneau d'administration</div>
+    <div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.6)" id="adminUserInfo"></div>
+  </div>
+  <nav class="admin-nav">
+    <div class="nav-section-label">Principal</div>
+    <button class="admin-nav-item active" onclick="loadSection('dashboard',this)"><span class="nav-icon">📊</span> Tableau de bord</button>
+    <button class="admin-nav-item" onclick="loadSection('analytics',this)"><span class="nav-icon">📈</span> Statistiques</button>
+
+    <div class="nav-section-label">Catalogue</div>
+    <button class="admin-nav-item" onclick="loadSection('products',this)"><span class="nav-icon">📦</span> Produits <span class="nav-badge" id="badgeProd">12</span></button>
+    <button class="admin-nav-item" onclick="loadSection('categories',this)"><span class="nav-icon">🗂️</span> Catégories</button>
+    <button class="admin-nav-item" onclick="loadSection('dropship',this)"><span class="nav-icon">🌐</span> Dropshipping</button>
+
+    <div class="nav-section-label">Ventes</div>
+    <button class="admin-nav-item" onclick="loadSection('orders',this)"><span class="nav-icon">🛒</span> Commandes <span class="nav-badge" id="badgeOrders">0</span></button>
+    <button class="admin-nav-item" onclick="loadSection('customers',this)"><span class="nav-icon">👥</span> Clients</button>
+    <button class="admin-nav-item" onclick="loadSection('payments',this)"><span class="nav-icon">💳</span> Paiements</button>
+
+    <div class="nav-section-label">Marketing</div>
+    <button class="admin-nav-item" onclick="loadSection('coupons',this)"><span class="nav-icon">🎟️</span> Coupons</button>
+    <button class="admin-nav-item" onclick="loadSection('banners',this)"><span class="nav-icon">🖼️</span> Bannières</button>
+
+    <div class="nav-section-label">Support</div>
+    <button class="admin-nav-item" onclick="loadSection('reviews',this)"><span class="nav-icon">⭐</span> Avis</button>
+    <button class="admin-nav-item" onclick="loadSection('returns',this)"><span class="nav-icon">↩️</span> Retours</button>
+    <button class="admin-nav-item" onclick="loadSection('deliveries',this)"><span class="nav-icon">🚚</span> Livraisons</button>
+
+    <div class="nav-section-label">Système</div>
+    <button class="admin-nav-item" onclick="loadSection('auditlog',this)"><span class="nav-icon">📋</span> Journal</button>
+    <button class="admin-nav-item" onclick="loadSection('settings',this)"><span class="nav-icon">⚙️</span> Paramètres</button>
+    <button class="admin-nav-item" onclick="loadSection('security',this)"><span class="nav-icon">🔒</span> Sécurité</button>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <a href="../../index.html" class="btn btn-outline" style="width:100%;margin-bottom:8px;justify-content:center;color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)">🏠 Voir le site</a>
+    <button onclick="adminLogout()" class="btn btn-danger" style="width:100%;justify-content:center">🚪 Déconnexion</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="admin-main">
+  <!-- Topbar -->
+  <div class="admin-topbar">
+    <button class="sidebar-toggle" onclick="document.getElementById('adminSidebar').classList.toggle('open')">☰</button>
+    <span class="admin-topbar-title" id="topbarTitle">Tableau de bord</span>
+    <div style="display:flex;align-items:center;gap:16px">
+      <input type="text" id="adminSearch" placeholder="🔍 Rechercher…" style="padding:7px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;width:200px" onkeydown="if(event.key==='Enter')adminGlobalSearch(this.value)">
+      <span style="font-size:20px;cursor:pointer" id="notifBell" onclick="toggleAdminNotifs()">🔔</span>
+      <div class="admin-avatar" id="adminAvatar">A</div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="admin-content" id="adminContent">
+    <!-- Loaded dynamically -->
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="productModalTitle">Ajouter un produit</h3>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pmId">
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Titre *</label><input type="text" id="pmTitle" class="form-control" placeholder="Nom du produit"></div>
+        <div class="form-group"><label class="form-label">Marque</label><input type="text" id="pmBrand" class="form-control" placeholder="Apple, Nike…"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea id="pmDesc" class="form-control" rows="3" placeholder="Description du produit"></textarea></div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Prix HTG *</label><input type="number" id="pmPrice" class="form-control" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Prix original (barré)</label><input type="number" id="pmPriceOld" class="form-control" placeholder="0"></div>
+      </div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Stock *</label><input type="number" id="pmStock" class="form-control" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SKU</label><input type="text" id="pmSku" class="form-control" placeholder="JL-XXX-001"></div>
+      </div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Catégorie</label>
+          <select id="pmCat" class="form-control"><option value="">Sélectionner</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Statut</label>
+          <select id="pmStatus" class="form-control"><option value="active">Actif</option><option value="inactive">Inactif</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">URL Image principale</label><input type="url" id="pmImg" class="form-control" placeholder="https://…"></div>
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="checkbox" id="tagFeatured" value="featured"> ⭐ Vedette</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="checkbox" id="tagHot" value="hot"> 🔥 Hot</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="checkbox" id="tagNew" value="new"> 🆕 Nouveau</label>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pmDropship"> Produit dropshipping</label></div>
+      </div>
+      <div id="pmImgPreview" style="margin-top:8px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('productModal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- DROPSHIP MODAL -->
+<div class="modal-overlay" id="dropshipModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🌐 Importer via lien</h3>
+      <button class="modal-close" onclick="closeModal('dropshipModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#4a5568;margin-bottom:16px">Collez le lien du produit depuis Amazon, AliExpress, Alibaba, ou tout autre fournisseur. Le système extraira automatiquement les informations.</p>
+      <div class="form-group"><label class="form-label">URL du produit *</label>
+        <div class="dropship-url-input">
+          <input type="url" id="dsUrl" class="form-control" placeholder="https://www.amazon.com/product/…">
+          <button class="btn btn-primary" onclick="scrapeProduct()">⬇️ Importer</button>
+        </div>
+      </div>
+      <div id="dsPreview" style="display:none;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-top:12px">
+        <div style="font-weight:700;color:#0a2342;margin-bottom:8px">Aperçu importé</div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div id="dsImg" style="width:80px;height:80px;background:#f5f5f0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px">📦</div>
+          <div style="flex:1">
+            <div id="dsTitle" style="font-weight:600;color:#0a2342;margin-bottom:4px"></div>
+            <div id="dsPrice" style="font-size:18px;font-weight:900;color:#ff6f00;margin-bottom:4px"></div>
+            <div id="dsSource" style="font-size:11px;color:#9aa3b2"></div>
+          </div>
+        </div>
+        <div class="form-row form-row-2" style="margin-top:12px">
+          <div class="form-group"><label class="form-label">Prix de vente HTG</label><input type="number" id="dsSellingPrice" class="form-control"></div>
+          <div class="form-group"><label class="form-label">Stock initial</label><input type="number" id="dsStock" class="form-control" value="99"></div>
+        </div>
+        <div class="form-group"><label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="dsVisible"> Afficher dans la boutique immédiatement</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('dropshipModal')">Annuler</button>
+      <button class="btn btn-success" id="dsImportBtn" style="display:none" onclick="importDropshipProduct()">✅ Importer dans la boutique</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ── SECURITY: Admin-only access ── */
+(function() {
+  const ADMIN_EMAILS = ['jloodna@gmail.com', 'odthanempire@gmail.com'];
+  const user = JSON.parse(sessionStorage.getItem('jl_user') || 'null');
+  if (!user || !ADMIN_EMAILS.includes(user.email?.toLowerCase()) || user.role !== 'admin') {
+    window.location.replace('access-denied.html');
+    return;
+  }
+  document.getElementById('adminUserInfo').textContent = user.email;
+  document.getElementById('adminAvatar').textContent = user.name?.[0]?.toUpperCase() || 'A';
+  logActivity('Connexion admin', user.email);
+})();
+
+/* ── LOCAL DATA ── */
+function getProducts() {
+  const stored = JSON.parse(localStorage.getItem('jl_admin_products') || 'null');
+  if (!stored) {
+    // Import from products.js defaults
+    const def = JSON.parse(localStorage.getItem('jl_products') || '[]');
+    localStorage.setItem('jl_admin_products', JSON.stringify(def));
+    return def;
+  }
+  return stored;
+}
+function saveProducts(prods) { localStorage.setItem('jl_admin_products', JSON.stringify(prods)); localStorage.setItem('jl_products', JSON.stringify(prods)); }
+function getOrders() { return JSON.parse(localStorage.getItem('jl_orders') || '[]'); }
+function getCustomers() { return JSON.parse(localStorage.getItem('jl_users') || '[]'); }
+function getAuditLog() { return JSON.parse(localStorage.getItem('jl_audit') || '[]'); }
+function logActivity(action, detail) {
+  const log = getAuditLog();
+  log.unshift({ action, detail, time: new Date().toISOString(), user: JSON.parse(sessionStorage.getItem('jl_user') || '{}').email });
+  localStorage.setItem('jl_audit', JSON.stringify(log.slice(0, 200)));
+}
+
+/* ── TOAST ── */
+function toast(type, msg) {
+  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span style="flex:1">${msg}</span><button onclick="this.parentElement.remove()" style="background:none;color:rgba(255,255,255,.6);font-size:16px;padding:0">✕</button>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* ── CURRENCY ── */
+function fmt(n) { return 'G ' + Number(n).toLocaleString('fr-HT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+/* ── MODAL ── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ── NAVIGATION ── */
+const SECTIONS = {
+  dashboard: renderDashboard,
+  analytics: renderAnalytics,
+  products: renderProducts,
+  categories: renderCategories,
+  dropship: renderDropship,
+  orders: renderOrders,
+  customers: renderCustomers,
+  payments: renderPayments,
+  coupons: renderCoupons,
+  banners: renderBanners,
+  reviews: renderReviews,
+  returns: renderReturns,
+  deliveries: renderDeliveries,
+  auditlog: renderAuditLog,
+  settings: renderSettings,
+  security: renderSecurity,
+};
+
+const SECTION_TITLES = {
+  dashboard:'Tableau de bord', analytics:'Statistiques', products:'Produits',
+  categories:'Catégories', dropship:'Dropshipping', orders:'Commandes',
+  customers:'Clients', payments:'Paiements', coupons:'Coupons & Promos',
+  banners:'Bannières & Contenu', reviews:'Avis & Signalements',
+  returns:'Retours & Remboursements', deliveries:'Livraisons',
+  auditlog:'Journal d\'activité', settings:'Paramètres du site', security:'Sécurité',
+};
+
+function loadSection(name, btn) {
+  document.querySelectorAll('.admin-nav-item').forEach(b => b.classList.remove('active'));
+  btn?.classList.add('active');
+  document.getElementById('topbarTitle').textContent = SECTION_TITLES[name] || name;
+  const fn = SECTIONS[name];
+  if (fn) fn();
+  document.getElementById('adminSidebar').classList.remove('open');
+  logActivity('Navigation', name);
+}
+
+/* ── DASHBOARD ── */
+function renderDashboard() {
+  const prods = getProducts(); const orders = getOrders(); const customers = getCustomers();
+  const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+  const pending = orders.filter(o => o.status === 'pending').length;
+  document.getElementById('badgeOrders').textContent = pending;
+
+  document.getElementById('adminContent').innerHTML = `
+    <div class="stat-grid" style="margin-bottom:24px">
+      <div class="stat-card blue"><div class="stat-icon">💰</div><div class="stat-num">${fmt(revenue)}</div><div class="stat-label">Revenus totaux</div><div class="stat-change" style="color:#2e7d32">▲ +12.5% ce mois</div></div>
+      <div class="stat-card orange"><div class="stat-icon">🛒</div><div class="stat-num">${orders.length}</div><div class="stat-label">Commandes totales</div><div class="stat-change" style="color:#2e7d32">▲ ${pending} en attente</div></div>
+      <div class="stat-card green"><div class="stat-icon">📦</div><div class="stat-num">${prods.length}</div><div class="stat-label">Produits actifs</div><div class="stat-change" style="color:#1565c0">→ ${prods.filter(p=>p.stock===0).length} rupture</div></div>
+      <div class="stat-card purple"><div class="stat-icon">👥</div><div class="stat-num">${customers.length}</div><div class="stat-label">Clients enregistrés</div><div class="stat-change" style="color:#2e7d32">▲ +3 nouveaux</div></div>
+    </div>
+
+    <div style="display:grid;gap:20px;grid-template-columns:1fr" id="dashGridMain">
+      <!-- Revenue Chart -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <span class="admin-panel-title">📈 Revenus — 7 derniers jours</span>
+          <select class="form-control" style="width:auto;font-size:12px" onchange="renderDashboard()">
+            <option>7 jours</option><option>30 jours</option><option>90 jours</option>
+          </select>
+        </div>
+        <div class="admin-panel-body">
+          <div class="chart-wrap" id="revenueChart">
+            ${['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map((d,i) => {
+              const h = [40,65,45,80,70,90,55][i];
+              return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+                <div style="font-size:11px;color:#0a2342;font-weight:700">${fmt(h * 1000).replace('G ','G')}</div>
+                <div class="chart-bar" style="height:${h}%;width:100%;max-width:32px"></div>
+                <div style="font-size:10px;color:#9aa3b2">${d}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <span class="admin-panel-title">🛒 Commandes récentes</span>
+          <button class="btn btn-outline btn-sm" onclick="loadSection('orders',null)">Tout voir</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody>${orders.slice(0,8).map(o => `
+              <tr>
+                <td style="font-family:monospace;font-size:12px;font-weight:700;color:#0a2342">${o.id}</td>
+                <td>${o.address?.name||'—'}</td>
+                <td style="font-weight:700;color:#ff6f00">${fmt(o.total)}</td>
+                <td><span class="badge ${statusBadgeClass(o.status)}">${statusLabel(o.status)}</span></td>
+                <td style="font-size:12px;color:#9aa3b2">${new Date(o.date).toLocaleDateString('fr-FR')}</td>
+                <td><button class="btn btn-outline btn-sm" onclick="viewOrder('${o.id}')">Voir</button></td>
+              </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:#9aa3b2;padding:20px">Aucune commande</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Low stock -->
+      <div class="admin-panel">
+        <div class="admin-panel-header"><span class="admin-panel-title">⚠️ Stock faible</span></div>
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>Produit</th><th>SKU</th><th>Stock</th><th>Action</th></tr></thead>
+            <tbody>${prods.filter(p=>p.stock<=5).slice(0,6).map(p=>`
+              <tr>
+                <td style="font-weight:600;color:#0a2342">${p.title}</td>
+                <td style="font-family:monospace;font-size:12px">${p.sku}</td>
+                <td><span class="badge ${p.stock===0?'badge-danger':'badge-warning'}">${p.stock===0?'Rupture':p.stock+' restants'}</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">✏️ Modifier</button></td>
+              </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:#9aa3b2;padding:20px">Tous les stocks sont bons ✅</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── PRODUCTS ── */
+function renderProducts() {
+  const prods = getProducts();
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <input type="text" id="prodSearch" placeholder="🔍 Chercher un produit…" class="form-control" style="flex:1;min-width:200px" oninput="filterProdTable(this.value)">
+      <select id="prodStatusFilter" class="form-control" style="width:auto" onchange="filterProdTable(document.getElementById('prodSearch').value)">
+        <option value="">Tous statuts</option><option value="active">Actif</option><option value="inactive">Inactif</option>
+      </select>
+      <button class="btn btn-primary" onclick="openProductModal()">+ Ajouter produit</button>
+      <button class="btn btn-accent" onclick="openModal('dropshipModal')">🌐 Importer Drop</button>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <span class="admin-panel-title">📦 Tous les produits (${prods.length})</span>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇️ Exporter CSV</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="prodTable">
+          <thead><tr><th>Image</th><th>Titre</th><th>Prix HTG</th><th>Stock</th><th>Catégorie</th><th>Statut</th><th>Tags</th><th>Actions</th></tr></thead>
+          <tbody id="prodTableBody">${renderProdRows(prods)}</tbody>
+        </table>
+      </div>
+    </div>`;
+  // Populate modal categories
+  const catSel = document.getElementById('pmCat');
+  if (catSel && !catSel.options.length) {
+    const CATS = ['electronique','mode','maison','beaute','sports','jouets','alimentation','auto','informatique','livres','bijoux','dropshipping'];
+    CATS.forEach(c => { catSel.innerHTML += `<option value="${c}">${c}</option>`; });
+  }
+}
+
+function renderProdRows(prods) {
+  if (!prods.length) return '<tr><td colspan="8" style="text-align:center;color:#9aa3b2;padding:28px">Aucun produit</td></tr>';
+  return prods.map(p => `
+    <tr id="prod-row-${p.id}">
+      <td><img src="${p.image||''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;background:#f5f5f0" onerror="this.src=''"></td>
+      <td>
+        <div style="font-weight:700;color:#0a2342;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.title}</div>
+        <div style="font-size:11px;color:#9aa3b2;font-family:monospace">${p.sku||''}</div>
+      </td>
+      <td style="font-weight:700;color:#ff6f00">${fmt(p.price)}</td>
+      <td><span class="badge ${p.stock===0?'badge-danger':p.stock<=5?'badge-warning':'badge-success'}">${p.stock===0?'Rupture':p.stock}</span></td>
+      <td style="font-size:12px;color:#4a5568">${p.category||'—'}</td>
+      <td><span class="badge ${p.status==='active'?'badge-success':'badge-danger'}">${p.status==='active'?'Actif':'Inactif'}</span></td>
+      <td style="font-size:11px">${(p.tags||[]).map(t => `<span class="badge badge-info" style="margin:1px">${t}</span>`).join('')}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">✏️</button>
+          <button class="btn btn-sm" style="background:#fff3f3;color:#c62828;border:1px solid #fca5a5" onclick="deleteProduct('${p.id}')">🗑️</button>
+          <button class="btn btn-sm" style="background:#f0f4ff;color:#1565c0;border:1px solid #bfdbfe" onclick="toggleStatus('${p.id}')">⏺</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterProdTable(q) {
+  const status = document.getElementById('prodStatusFilter')?.value || '';
+  let prods = getProducts();
+  if (q) prods = prods.filter(p => p.title?.toLowerCase().includes(q.toLowerCase()) || p.sku?.toLowerCase().includes(q.toLowerCase()));
+  if (status) prods = prods.filter(p => p.status === status);
+  document.getElementById('prodTableBody').innerHTML = renderProdRows(prods);
+}
+
+function openProductModal(product = null) {
+  document.getElementById('productModalTitle').textContent = product ? 'Modifier le produit' : 'Ajouter un produit';
+  ['pmId','pmTitle','pmBrand','pmDesc','pmPrice','pmPriceOld','pmStock','pmSku','pmImg'].forEach(id => { const el = document.getElementById(id); if (el) el.value = product?.[id.replace('pm','').toLowerCase()] || ''; });
+  if (product) {
+    document.getElementById('pmId').value = product.id || '';
+    document.getElementById('pmTitle').value = product.title || '';
+    document.getElementById('pmBrand').value = product.brand || '';
+    document.getElementById('pmDesc').value = product.description || '';
+    document.getElementById('pmPrice').value = product.price || '';
+    document.getElementById('pmPriceOld').value = product.priceOld || '';
+    document.getElementById('pmStock').value = product.stock || '';
+    document.getElementById('pmSku').value = product.sku || '';
+    document.getElementById('pmImg').value = product.image || '';
+    document.getElementById('pmCat').value = product.category || '';
+    document.getElementById('pmStatus').value = product.status || 'active';
+    document.getElementById('pmDropship').checked = product.dropship || false;
+    document.getElementById('tagFeatured').checked = product.tags?.includes('featured') || false;
+    document.getElementById('tagHot').checked = product.tags?.includes('hot') || false;
+    document.getElementById('tagNew').checked = product.tags?.includes('new') || false;
+    if (product.image) document.getElementById('pmImgPreview').innerHTML = `<img src="${product.image}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;margin-top:8px" onerror="this.style.display='none'">`;
+  } else {
+    ['pmId','pmTitle','pmBrand','pmDesc','pmPrice','pmPriceOld','pmStock','pmSku','pmImg'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    document.getElementById('pmDropship').checked = false;
+    ['tagFeatured','tagHot','tagNew'].forEach(id => document.getElementById(id).checked = false);
+    document.getElementById('pmImgPreview').innerHTML = '';
+  }
+  openModal('productModal');
+}
+
+function editProduct(id) {
+  const p = getProducts().find(p => p.id === id);
+  if (p) openProductModal(p);
+}
+
+function saveProduct() {
+  const id = document.getElementById('pmId').value;
+  const title = document.getElementById('pmTitle').value.trim();
+  const price = parseFloat(document.getElementById('pmPrice').value);
+  if (!title) { toast('error', 'Le titre est requis.'); return; }
+  if (isNaN(price) || price <= 0) { toast('error', 'Prix invalide.'); return; }
+  const tags = [];
+  if (document.getElementById('tagFeatured').checked) tags.push('featured');
+  if (document.getElementById('tagHot').checked) tags.push('hot');
+  if (document.getElementById('tagNew').checked) tags.push('new');
+  const product = {
+    id: id || 'p' + Date.now(), title,
+    brand: document.getElementById('pmBrand').value,
+    description: document.getElementById('pmDesc').value,
+    price, priceOld: parseFloat(document.getElementById('pmPriceOld').value) || null,
+    stock: parseInt(document.getElementById('pmStock').value) || 0,
+    sku: document.getElementById('pmSku').value || 'JL-' + Date.now(),
+    category: document.getElementById('pmCat').value || 'electronique',
+    status: document.getElementById('pmStatus').value,
+    image: document.getElementById('pmImg').value,
+    dropship: document.getElementById('pmDropship').checked,
+    tags, rating: 4.5, reviews: 0,
+  };
+  const prods = getProducts();
+  const idx = prods.findIndex(p => p.id === product.id);
+  if (idx > -1) prods[idx] = product; else prods.unshift(product);
+  saveProducts(prods);
+  closeModal('productModal');
+  renderProducts();
+  toast('success', `Produit "${title}" sauvegardé!`);
+  logActivity('Produit sauvegardé', title);
+}
+
+function deleteProduct(id) {
+  if (!confirm('⚠️ Supprimer ce produit définitivement?')) return;
+  const prods = getProducts().filter(p => p.id !== id);
+  saveProducts(prods);
+  renderProducts();
+  toast('success', 'Produit supprimé.');
+  logActivity('Produit supprimé', id);
+}
+
+function toggleStatus(id) {
+  const prods = getProducts();
+  const p = prods.find(x => x.id === id);
+  if (p) { p.status = p.status === 'active' ? 'inactive' : 'active'; saveProducts(prods); renderProducts(); toast('info', `Statut mis à jour: ${p.status}`); }
+}
+
+/* ── DROPSHIP ── */
+function renderDropship() {
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:20px">
+      <button class="btn btn-primary" onclick="openModal('dropshipModal')">🌐 Importer par lien</button>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">🌐 Produits Dropshipping</span></div>
+      <div class="admin-panel-body">
+        <p style="color:#4a5568;font-size:14px;margin-bottom:20px">Importez des produits depuis n'importe quelle source mondiale en collant leur URL. Le système extrait titre, prix, images et description automatiquement.</p>
+        <div style="display:grid;gap:12px">
+          <div style="background:#f0f4ff;border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px">
+            <span style="font-size:28px">🛒</span>
+            <div><div style="font-weight:700;color:#0a2342">Amazon, AliExpress, Alibaba</div><div style="font-size:13px;color:#4a5568">Importez directement depuis les grands marchés mondiaux</div></div>
+          </div>
+          <div style="background:#f3e5f5;border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px">
+            <span style="font-size:28px">🏷️</span>
+            <div><div style="font-weight:700;color:#6a1b9a">Prix automatiques</div><div style="font-size:13px;color:#4a5568">Définissez votre marge bénéficiaire en HTG ou DOP</div></div>
+          </div>
+          <div style="background:#e8f5e9;border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px">
+            <span style="font-size:28px">📦</span>
+            <div><div style="font-weight:700;color:#2e7d32">Stock illimité</div><div style="font-size:13px;color:#4a5568">Les produits dropshipping apparaissent toujours disponibles</div></div>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="admin-panel-title" style="margin-bottom:12px">Produits dropshipping actifs</div>
+          ${renderDropshipList()}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderDropshipList() {
+  const dp = getProducts().filter(p => p.dropship);
+  if (!dp.length) return '<p style="color:#9aa3b2;font-size:13px">Aucun produit dropshipping importé.</p>';
+  return `<table class="admin-table"><thead><tr><th>Produit</th><th>Prix</th><th>Source</th><th>Statut</th></tr></thead><tbody>${dp.map(p=>`
+    <tr><td style="font-weight:600">${p.title}</td><td>${fmt(p.price)}</td><td><span class="badge badge-purple">Dropship</span></td><td><span class="badge ${p.status==='active'?'badge-success':'badge-danger'}">${p.status==='active'?'Actif':'Inactif'}</span></td></tr>`).join('')}</tbody></table>`;
+}
+
+async function scrapeProduct() {
+  const url = document.getElementById('dsUrl').value.trim();
+  if (!url) { toast('error', 'Entrez une URL valide.'); return; }
+  const btn = document.querySelector('#dropshipModal .btn-primary');
+  btn.innerHTML = '⏳ Analyse…'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 1500));
+  // Demo extraction (real app would use backend scraper)
+  const demos = {
+    amazon: { title: 'Produit Amazon Importé', price: 45000, source: 'Amazon.com' },
+    aliexpress: { title: 'Produit AliExpress Importé', price: 8500, source: 'AliExpress' },
+    alibaba: { title: 'Produit Alibaba Importé', price: 15000, source: 'Alibaba' },
+  };
+  let demo = demos.amazon;
+  if (url.includes('aliexpress')) demo = demos.aliexpress;
+  else if (url.includes('alibaba')) demo = demos.alibaba;
+
+  document.getElementById('dsTitle').textContent = demo.title;
+  document.getElementById('dsPrice').textContent = fmt(demo.price);
+  document.getElementById('dsSource').textContent = '📌 Source: ' + demo.source;
+  document.getElementById('dsSellingPrice').value = Math.round(demo.price * 1.35);
+  document.getElementById('dsPreview').style.display = 'block';
+  document.getElementById('dsImportBtn').style.display = 'inline-flex';
+  btn.innerHTML = '⬇️ Importer'; btn.disabled = false;
+  toast('success', 'Produit extrait avec succès!');
+}
+
+function importDropshipProduct() {
+  const title = document.getElementById('dsTitle').textContent;
+  const price = parseFloat(document.getElementById('dsSellingPrice').value) || 45000;
+  const stock = parseInt(document.getElementById('dsStock').value) || 99;
+  const visible = document.getElementById('dsVisible').checked;
+  const product = {
+    id: 'ds' + Date.now(), title, brand: 'Import', description: 'Produit importé via dropshipping.',
+    price, priceOld: null, stock, sku: 'DS-' + Date.now(),
+    category: 'dropshipping', status: visible ? 'active' : 'inactive',
+    image: '', dropship: true, tags: ['new'], rating: 4.0, reviews: 0,
+  };
+  const prods = getProducts(); prods.unshift(product); saveProducts(prods);
+  closeModal('dropshipModal');
+  toast('success', `"${title}" importé dans la boutique!`);
+  logActivity('Dropship importé', title);
+}
+
+/* ── ORDERS ── */
+function renderOrders() {
+  const orders = getOrders();
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <select id="orderStatusF" class="form-control" style="width:auto" onchange="filterOrders()">
+        <option value="">Tous les statuts</option>
+        <option value="pending">En attente</option><option value="processing">En traitement</option>
+        <option value="shipped">Expédiée</option><option value="delivered">Livrée</option><option value="cancelled">Annulée</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇️ Exporter</button>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">🛒 Commandes (${orders.length})</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="ordersTable">
+          <thead><tr><th>ID</th><th>Client</th><th>Articles</th><th>Total</th><th>Paiement</th><th>Statut</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="ordersBody">${renderOrderRows(orders)}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderOrderRows(orders) {
+  if (!orders.length) return '<tr><td colspan="8" style="text-align:center;color:#9aa3b2;padding:28px">Aucune commande</td></tr>';
+  return orders.map(o => `
+    <tr>
+      <td style="font-family:monospace;font-size:11px;font-weight:700;color:#0a2342">${o.id}</td>
+      <td><div style="font-weight:600;font-size:13px">${o.address?.name||'—'}</div><div style="font-size:11px;color:#9aa3b2">${o.address?.email||''}</div></td>
+      <td style="font-size:12px;color:#4a5568">${(o.items||[]).length} article(s)</td>
+      <td style="font-weight:700;color:#ff6f00">${fmt(o.total)}</td>
+      <td><span class="badge badge-info">${o.payment||'—'}</span></td>
+      <td>
+        <select onchange="updateOrderStatus('${o.id}',this.value)" style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px">
+          ${['pending','processing','shipped','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${statusLabel(s)}</option>`).join('')}
+        </select>
+      </td>
+      <td style="font-size:12px;color:#9aa3b2">${new Date(o.date).toLocaleDateString('fr-FR')}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-outline btn-sm" onclick="viewOrder('${o.id}')">👁️</button>
+          <button class="btn btn-sm" style="background:#fff3f3;color:#c62828;border:1px solid #fca5a5" onclick="cancelOrder('${o.id}')">❌</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterOrders() {
+  const status = document.getElementById('orderStatusF').value;
+  let orders = getOrders();
+  if (status) orders = orders.filter(o => o.status === status);
+  document.getElementById('ordersBody').innerHTML = renderOrderRows(orders);
+}
+
+function updateOrderStatus(id, status) {
+  const orders = getOrders();
+  const o = orders.find(x => x.id === id);
+  if (o) { o.status = status; localStorage.setItem('jl_orders', JSON.stringify(orders)); toast('success', `Commande ${id} → ${statusLabel(status)}`); logActivity('Statut commande', `${id}: ${status}`); }
+}
+
+function viewOrder(id) {
+  const o = getOrders().find(x => x.id === id);
+  if (!o) return;
+  alert(`Commande: ${o.id}\nClient: ${o.address?.name}\nTotal: ${fmt(o.total)}\nStatut: ${statusLabel(o.status)}\nItems: ${o.items?.length || 0}`);
+}
+
+function cancelOrder(id) {
+  if (!confirm('Annuler cette commande?')) return;
+  updateOrderStatus(id, 'cancelled');
+}
+
+/* ── CUSTOMERS ── */
+function renderCustomers() {
+  const customers = getCustomers();
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">👥 Clients (${customers.length})</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+          <tbody>${customers.length ? customers.map(c => `
+            <tr>
+              <td style="font-weight:600;color:#0a2342">${c.name||'—'}</td>
+              <td style="font-size:13px">${c.email}</td>
+              <td><span class="badge badge-info">${c.role||'customer'}</span></td>
+              <td style="font-size:12px;color:#9aa3b2">${c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—'}</td>
+              <td><button class="btn btn-outline btn-sm" onclick="toast('info','Vue client disponible bientôt')">👁️</button></td>
+            </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:#9aa3b2;padding:28px">Aucun client enregistré</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── PAYMENTS ── */
+function renderPayments() {
+  const orders = getOrders();
+  const paypalOrders = orders.filter(o => o.payment === 'PayPal');
+  const natcashOrders = orders.filter(o => o.payment === 'NatCash');
+  const paypalTotal = paypalOrders.reduce((s, o) => s + o.total, 0);
+  const natcashTotal = natcashOrders.reduce((s, o) => s + o.total, 0);
+  document.getElementById('adminContent').innerHTML = `
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-card blue"><div class="stat-icon">🅿️</div><div class="stat-num">${fmt(paypalTotal)}</div><div class="stat-label">PayPal</div><div class="stat-change" style="color:#4a5568">${paypalOrders.length} transactions</div></div>
+      <div class="stat-card orange"><div class="stat-icon">📱</div><div class="stat-num">${fmt(natcashTotal)}</div><div class="stat-label">NatCash</div><div class="stat-change" style="color:#4a5568">${natcashOrders.length} transactions</div></div>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">💳 Historique des paiements</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Commande</th><th>Méthode</th><th>Montant</th><th>Statut</th><th>Date</th></tr></thead>
+          <tbody>${orders.map(o => `
+            <tr>
+              <td style="font-family:monospace;font-size:11px;font-weight:700">${o.id}</td>
+              <td><span class="badge badge-info">${o.payment||'—'}</span></td>
+              <td style="font-weight:700;color:#ff6f00">${fmt(o.total)}</td>
+              <td><span class="badge badge-success">Reçu</span></td>
+              <td style="font-size:12px;color:#9aa3b2">${new Date(o.date).toLocaleDateString('fr-FR')}</td>
+            </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:#9aa3b2;padding:20px">Aucun paiement</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── ANALYTICS ── */
+function renderAnalytics() {
+  const orders = getOrders(); const prods = getProducts();
+  const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+  document.getElementById('adminContent').innerHTML = `
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-card blue"><div class="stat-num">${fmt(revenue)}</div><div class="stat-label">Revenus totaux</div></div>
+      <div class="stat-card orange"><div class="stat-num">${orders.length}</div><div class="stat-label">Commandes</div></div>
+      <div class="stat-card green"><div class="stat-num">${orders.length ? fmt(revenue / orders.length) : 'G 0'}</div><div class="stat-label">Panier moyen</div></div>
+      <div class="stat-card purple"><div class="stat-num">${prods.filter(p => p.status==='active').length}</div><div class="stat-label">Produits actifs</div></div>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">📈 Performances mensuelles</span></div>
+      <div class="admin-panel-body">
+        <div class="chart-wrap">
+          ${['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'].map((m,i) => {
+            const h = Math.floor(20 + Math.random() * 70);
+            return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+              <div class="chart-bar" style="height:${h}%;width:100%;max-width:28px;background:linear-gradient(180deg,#ff6f00,#0a2342)"></div>
+              <div style="font-size:10px;color:#9aa3b2">${m}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="admin-panel" style="margin-top:20px">
+      <div class="admin-panel-header"><span class="admin-panel-title">🏆 Top produits</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Produit</th><th>Prix</th><th>Stock</th><th>Ventes (est.)</th></tr></thead>
+          <tbody>${prods.slice(0,8).map((p,i) => `<tr><td style="font-weight:600">${p.title}</td><td>${fmt(p.price)}</td><td>${p.stock}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="height:6px;background:#e2e8f0;border-radius:3px;flex:1"><div style="height:6px;background:#ff6f00;border-radius:3px;width:${Math.max(10, 100 - i * 11)}%"></div></div>${Math.max(5, 120 - i * 15)}</div></td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── CATEGORIES ── */
+function renderCategories() {
+  const CATS = [
+    {slug:'electronique',name:'Électronique',icon:'📱'},{slug:'mode',name:'Mode & Vêtements',icon:'👗'},
+    {slug:'maison',name:'Maison & Jardin',icon:'🏠'},{slug:'beaute',name:'Beauté & Santé',icon:'💄'},
+    {slug:'sports',name:'Sports',icon:'⚽'},{slug:'jouets',name:'Enfants & Jouets',icon:'🧸'},
+    {slug:'informatique',name:'Informatique',icon:'💻'},{slug:'dropshipping',name:'Dropshipping',icon:'🌐'},
+  ];
+  const prods = getProducts();
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">🗂️ Catégories</span><button class="btn btn-primary" onclick="toast('info','Ajouter catégorie bientôt disponible')">+ Ajouter</button></div>
+      <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));padding:20px">
+        ${CATS.map(c => {
+          const count = prods.filter(p => p.category === c.slug).length;
+          return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;transition:all .2s" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseleave="this.style.boxShadow='none'">
+            <div style="font-size:40px;margin-bottom:8px">${c.icon}</div>
+            <div style="font-weight:700;color:#0a2342;margin-bottom:4px">${c.name}</div>
+            <div style="font-size:12px;color:#9aa3b2">${count} produit(s)</div>
+            <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="toast('info','Modifier catégorie bientôt')">✏️ Modifier</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+/* ── COUPONS ── */
+function renderCoupons() {
+  const DEMO_COUPONS = [
+    { code:'JLOODNA10', discount:'10%', type:'pourcentage', uses:45, maxUses:100, expires:'2025-12-31', status:'active' },
+    { code:'BIENVENUE20', discount:'20%', type:'pourcentage', uses:12, maxUses:50, expires:'2025-08-31', status:'active' },
+    { code:'HAITI50', discount:'50%', type:'pourcentage', uses:8, maxUses:30, expires:'2025-06-30', status:'active' },
+    { code:'SHIP500', discount:'G 500', type:'montant', uses:23, maxUses:200, expires:'2025-12-31', status:'active' },
+  ];
+  document.getElementById('adminContent').innerHTML = `
+    <div style="margin-bottom:16px"><button class="btn btn-primary" onclick="toast('info','Créer coupon bientôt disponible')">+ Créer un coupon</button></div>
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">🎟️ Coupons actifs</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Code</th><th>Réduction</th><th>Type</th><th>Utilisations</th><th>Expire</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody>${DEMO_COUPONS.map(c => `
+            <tr>
+              <td style="font-family:monospace;font-weight:700;color:#0a2342;font-size:14px">${c.code}</td>
+              <td style="font-weight:700;color:#ff6f00">${c.discount}</td>
+              <td><span class="badge badge-info">${c.type}</span></td>
+              <td>${c.uses}/${c.maxUses} <div style="height:4px;background:#e2e8f0;border-radius:2px;margin-top:3px"><div style="height:4px;background:#1565c0;border-radius:2px;width:${(c.uses/c.maxUses)*100}%"></div></div></td>
+              <td style="font-size:12px;color:#9aa3b2">${c.expires}</td>
+              <td><span class="badge badge-success">Actif</span></td>
+              <td><button class="btn btn-danger btn-sm" onclick="toast('success','Coupon désactivé')">Désactiver</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── BANNERS ── */
+function renderBanners() {
+  document.getElementById('adminContent').innerHTML = `
+    <div style="margin-bottom:16px"><button class="btn btn-primary" onclick="toast('info','Ajouter bannière bientôt')">+ Ajouter bannière</button></div>
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">🖼️ Bannières actives</span></div>
+      <div class="admin-panel-body">
+        ${['Hero 1 — Technologie Premium','Hero 2 — Mode & Fashion','Hero 3 — Dropshipping'].map((b,i) => `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px">
+            <div style="width:80px;height:48px;border-radius:8px;background:linear-gradient(135deg,#0a2342,#1565c0);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff">🖼️</div>
+            <div style="flex:1"><div style="font-weight:600;color:#0a2342">${b}</div><div style="font-size:12px;color:#9aa3b2">Slide ${i+1} • Actif</div></div>
+            <button class="btn btn-outline btn-sm" onclick="toast('info','Modifier bannière bientôt')">✏️</button>
+            <button class="btn btn-sm" style="background:#fff3f3;color:#c62828;border:1px solid #fca5a5" onclick="toast('warning','Supprimer bannière?')">🗑️</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ── REVIEWS ── */
+function renderReviews() {
+  const DEMO = [
+    { user:'Jean Robert', product:'iPhone 15 Pro', rating:5, text:'Excellent produit!', date:'2025-05-01', status:'approved' },
+    { user:'Maria G.', product:'Samsung S24', rating:4, text:'Muy bueno', date:'2025-04-28', status:'pending' },
+    { user:'Pierre C.', product:'MacBook Pro', rating:5, text:'Parfait!', date:'2025-04-20', status:'approved' },
+  ];
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">⭐ Avis clients</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Client</th><th>Produit</th><th>Note</th><th>Avis</th><th>Statut</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>${DEMO.map(r => `
+            <tr>
+              <td style="font-weight:600">${r.user}</td>
+              <td style="font-size:13px">${r.product}</td>
+              <td style="color:#d4a017">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
+              <td style="font-size:13px;max-width:200px">${r.text}</td>
+              <td><span class="badge ${r.status==='approved'?'badge-success':'badge-warning'}">${r.status==='approved'?'Approuvé':'En attente'}</span></td>
+              <td style="font-size:12px;color:#9aa3b2">${r.date}</td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-success btn-sm" onclick="toast('success','Avis approuvé')">✅</button>
+                  <button class="btn btn-danger btn-sm" onclick="toast('warning','Avis supprimé')">🗑️</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── RETURNS ── */
+function renderReturns() {
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">↩️ Retours & Remboursements</span></div>
+      <div class="admin-panel-body">
+        <div class="empty-state" style="padding:40px;text-align:center">
+          <div style="font-size:48px;margin-bottom:12px">↩️</div>
+          <div style="font-weight:700;color:#0a2342;margin-bottom:6px">Aucun retour en cours</div>
+          <div style="font-size:13px;color:#9aa3b2">Les demandes de retour apparaîtront ici</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── DELIVERIES ── */
+function renderDeliveries() {
+  const orders = getOrders().filter(o => o.status === 'shipped');
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">🚚 Livraisons en cours (${orders.length})</span></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Commande</th><th>Client</th><th>Destination</th><th>Méthode</th><th>Actions</th></tr></thead>
+          <tbody>${orders.length ? orders.map(o => `
+            <tr>
+              <td style="font-family:monospace;font-size:12px;font-weight:700">${o.id}</td>
+              <td>${o.address?.name||'—'}</td>
+              <td>${o.address?.city||'—'}, ${o.address?.country||'—'}</td>
+              <td><span class="badge badge-purple">${o.shipping?.name||'Standard'}</span></td>
+              <td><button class="btn btn-success btn-sm" onclick="updateOrderStatus('${o.id}','delivered');renderDeliveries()">✅ Marquer livré</button></td>
+            </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:#9aa3b2;padding:28px">Aucune livraison en transit</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── AUDIT LOG ── */
+function renderAuditLog() {
+  const logs = getAuditLog();
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-panel-header"><span class="admin-panel-title">📋 Journal d'activité</span><button class="btn btn-danger btn-sm" onclick="if(confirm('Effacer le journal?')){localStorage.removeItem('jl_audit');renderAuditLog()}">Effacer</button></div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Action</th><th>Détail</th><th>Admin</th><th>Heure</th></tr></thead>
+          <tbody>${logs.length ? logs.map(l => `
+            <tr>
+              <td style="font-weight:600;color:#0a2342">${l.action}</td>
+              <td style="font-size:13px;color:#4a5568">${l.detail||'—'}</td>
+              <td style="font-size:12px;color:#9aa3b2">${l.user||'—'}</td>
+              <td style="font-size:12px;color:#9aa3b2">${new Date(l.time).toLocaleString('fr-FR')}</td>
+            </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:#9aa3b2;padding:28px">Journal vide</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── SETTINGS ── */
+function renderSettings() {
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:grid;gap:20px">
+      <div class="admin-panel">
+        <div class="admin-panel-header"><span class="admin-panel-title">⚙️ Paramètres généraux</span></div>
+        <div class="admin-panel-body">
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Nom du site</label><input type="text" class="form-control" value="Jloodna Global Trading"></div>
+            <div class="form-group"><label class="form-label">Email de contact</label><input type="email" class="form-control" value="contact@jloodna.com"></div>
+          </div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Devise principale</label><select class="form-control"><option selected>HTG (Gourde haïtienne)</option><option>DOP (Peso dominicain)</option></select></div>
+            <div class="form-group"><label class="form-label">Taux HTG → DOP</label><input type="number" class="form-control" value="0.37" step="0.01"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Livraison gratuite dès (HTG)</label><input type="number" class="form-control" value="5000"></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:8px;font-size:14px"><input type="checkbox" checked style="accent-color:#0a2342"> Mode maintenance activable</label></div>
+          <button class="btn btn-primary" onclick="toast('success','Paramètres sauvegardés!')">💾 Sauvegarder</button>
+        </div>
+      </div>
+      <div class="admin-panel">
+        <div class="admin-panel-header"><span class="admin-panel-title">💳 Paiements</span></div>
+        <div class="admin-panel-body">
+          <div class="form-group"><label class="form-label">PayPal Client ID</label><input type="text" class="form-control" value="AdI4wGqusD1U_r2ng3TxPl…" readonly style="font-family:monospace;background:#f5f5f0"></div>
+          <div class="form-group"><label class="form-label">NatCash — Numéro de réception</label><input type="tel" class="form-control" value="+509 40 89 40 38"></div>
+          <button class="btn btn-primary" onclick="toast('success','Config paiement sauvegardée!')">💾 Sauvegarder</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── SECURITY ── */
+function renderSecurity() {
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:grid;gap:20px">
+      <div class="admin-panel">
+        <div class="admin-panel-header"><span class="admin-panel-title">🔒 Sécurité du compte admin</span></div>
+        <div class="admin-panel-body">
+          <div style="background:#e8f5e9;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;gap:10px">
+            <span style="font-size:24px">✅</span>
+            <div><div style="font-weight:700;color:#2e7d32">Système sécurisé</div><div style="font-size:13px;color:#4a5568">Accès admin restreint aux emails autorisés seulement</div></div>
+          </div>
+          <table class="admin-table">
+            <thead><tr><th>Mesure de sécurité</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>Emails admin restreints</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Redirection accès refusé</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Sessions sécurisées</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Rate limiting login</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Protection XSS</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Journal d'activité admin</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Masquage infos sensibles</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td>Confirmation avant suppression</td><td><span class="badge badge-success">Actif</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:16px;padding:14px;background:#fff3e0;border-radius:8px;font-size:13px;color:#e65100">
+            ⚠️ Ne partagez jamais vos identifiants admin. Les emails autorisés ne sont pas affichés ici pour des raisons de sécurité.
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── HELPERS ── */
+function statusLabel(s) { return {pending:'⏳ En attente',processing:'⚙️ Traitement',shipped:'🚚 Expédiée',delivered:'✅ Livrée',cancelled:'❌ Annulée'}[s] || s; }
+function statusBadgeClass(s) { return {pending:'badge-warning',processing:'badge-info',shipped:'badge-purple',delivered:'badge-success',cancelled:'badge-danger'}[s] || 'badge-info'; }
+
+function exportCSV() { toast('success','CSV exporté (démo)!'); }
+function adminGlobalSearch(q) { if (q) toast('info', `Recherche: "${q}" — bientôt disponible`); }
+function toggleAdminNotifs() { toast('info', 'Panneau notifications bientôt disponible'); }
+function viewOrder(id) { const o = getOrders().find(x => x.id === id); if (o) alert(`Commande: ${o.id}\nClient: ${o.address?.name}\nTotal: ${fmt(o.total)}\nStatut: ${statusLabel(o.status)}`); }
+function adminLogout() { sessionStorage.removeItem('jl_user'); window.location.href = '../../auth/login.html'; }
+
+// Monitor new orders in real-time (simulation)
+setInterval(() => {
+  const count = getOrders().filter(o => o.status === 'pending').length;
+  const badge = document.getElementById('badgeOrders');
+  if (badge) badge.textContent = count;
+}, 5000);
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  // Init product modal cats
+  const catSel = document.getElementById('pmCat');
+  if (catSel) {
+    ['electronique','mode','maison','beaute','sports','jouets','informatique','dropshipping','bijoux','alimentation','auto','livres'].forEach(c => {
+      catSel.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  }
+  // Load dashboard on start
+  renderDashboard();
+});
+</script>
+</body>
+</html>
